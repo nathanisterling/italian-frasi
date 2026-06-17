@@ -3,16 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14161a">
 <title>Frasi — Italian Phrase Trainer</title>
 <style>
   :root {
-    --green: #008C45;
-    --red: #CD212A;
-    --cream: #faf7f0;
-    --ink: #2b2b2b;
-    --muted: #8a857c;
-    --card: #ffffff;
-    --border: #e8e2d6;
+    color-scheme: dark;
+    --green: #3fb950;        /* bright Italian green, readable on dark */
+    --green-hover: #4cc861;
+    --red: #f0565d;          /* bright Italian red for dark backgrounds */
+    --cream: #14161a;        /* page background (kept var name for compatibility) */
+    --ink: #e9e7e2;          /* primary light text */
+    --muted: #9a958c;        /* secondary text */
+    --card: #1e2127;         /* card / panel surface */
+    --surface: #262a31;      /* inputs, chips, buttons */
+    --surface-hover: #2f343d;/* hover state */
+    --border: #343a44;       /* borders / dividers */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -43,7 +48,7 @@
     padding: 28px 24px 22px;
     margin-top: 18px;
     text-align: center;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.45);
     position: relative;
     overflow: hidden;
   }
@@ -52,7 +57,7 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 5px;
-    background: linear-gradient(90deg, var(--green) 33%, #fff 33% 66%, var(--red) 66%);
+    background: linear-gradient(90deg, var(--green) 33%, #f2efe8 33% 66%, var(--red) 66%);
   }
   .phrase-it {
     font-size: 1.5rem;
@@ -88,7 +93,7 @@
     justify-content: center;
   }
   .word-chip {
-    background: #f6f2e9;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 9px;
     padding: 5px 9px;
@@ -103,7 +108,7 @@
     font-size: 0.86rem;
     line-height: 1.5;
     color: var(--ink);
-    background: #f0f9f3;
+    background: rgba(63,185,80,0.10);
     border-left: 3px solid var(--green);
     border-radius: 0 8px 8px 0;
     padding: 9px 12px;
@@ -139,7 +144,8 @@
   }
   .transport button {
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--surface);
+    color: var(--ink);
     border-radius: 50%;
     width: 52px; height: 52px;
     font-size: 1.2rem;
@@ -147,16 +153,16 @@
     transition: transform 0.1s, background 0.15s;
     display: flex; align-items: center; justify-content: center;
   }
-  .transport button:hover { background: #f3efe6; }
+  .transport button:hover { background: var(--surface-hover); }
   .transport button:active { transform: scale(0.93); }
   .transport .play-btn {
     width: 68px; height: 68px;
     font-size: 1.6rem;
     background: var(--green);
-    color: #fff;
+    color: #0d1a10;
     border: none;
   }
-  .transport .play-btn:hover { background: #00a350; }
+  .transport .play-btn:hover { background: var(--green-hover); }
 
   /* ---- Settings row ---- */
   .settings {
@@ -177,7 +183,8 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 4px 8px;
-    background: #fff;
+    background: var(--surface);
+    color: var(--ink);
     font-size: 0.88rem;
     cursor: pointer;
   }
@@ -186,7 +193,7 @@
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider-t {
     position: absolute; inset: 0;
-    background: #d8d2c4;
+    background: #3a3f49;
     border-radius: 24px;
     cursor: pointer;
     transition: background 0.2s;
@@ -226,19 +233,22 @@
     border-radius: 9px;
     padding: 10px 12px;
     font-size: 0.95rem;
-    background: #fff;
+    background: var(--surface);
+    color: var(--ink);
   }
+  .add-row input::placeholder { color: var(--muted); }
   .add-row input:focus { outline: 2px solid var(--green); border-color: transparent; }
   .add-row button {
-    background: var(--ink);
-    color: #fff;
+    background: var(--green);
+    color: #0d1a10;
+    font-weight: 600;
     border: none;
     border-radius: 9px;
     padding: 10px 20px;
     font-size: 0.95rem;
     cursor: pointer;
   }
-  .add-row button:hover { background: #000; }
+  .add-row button:hover { background: var(--green-hover); }
 
   /* ---- Lists ---- */
   .tabs {
@@ -248,7 +258,7 @@
   }
   .tabs button {
     border: 1px solid var(--border);
-    background: #f1ece1;
+    background: var(--surface);
     border-radius: 10px 10px 0 0;
     border-bottom: none;
     padding: 9px 18px;
@@ -275,21 +285,22 @@
     border-bottom: 1px solid var(--border);
   }
   .item:last-child { border-bottom: none; }
-  .item.playing-now { background: #f0f9f3; }
+  .item.playing-now { background: rgba(63,185,80,0.12); }
   .item .txt { flex: 1; min-width: 0; }
   .item .it { font-weight: 600; font-size: 0.95rem; }
   .item .en { font-size: 0.83rem; color: var(--muted); font-style: italic; }
   .item .actions { display: flex; gap: 6px; flex-shrink: 0; }
   .item .actions button {
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--surface);
+    color: var(--ink);
     border-radius: 8px;
     width: 34px; height: 34px;
     cursor: pointer;
     font-size: 0.9rem;
   }
-  .item .actions button:hover { background: #f3efe6; }
-  .item .actions .del:hover { background: #fdeaea; border-color: var(--red); }
+  .item .actions button:hover { background: var(--surface-hover); }
+  .item .actions .del:hover { background: rgba(240,86,93,0.18); border-color: var(--red); }
   .empty {
     padding: 28px;
     text-align: center;
@@ -305,8 +316,8 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--green);
-    background: #eaf6ee;
-    border: 1px solid #cfe9d8;
+    background: rgba(63,185,80,0.14);
+    border: 1px solid rgba(63,185,80,0.35);
     border-radius: 6px;
     padding: 1px 6px;
     margin-left: 7px;
@@ -316,7 +327,7 @@
     flex-shrink: 0;
     font-size: 0.78rem;
     color: var(--muted);
-    background: #f6f2e9;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 999px;
     padding: 3px 9px;
@@ -330,16 +341,17 @@
   }
   .server-status .dot-s {
     display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-    background: #c9c3b6; margin-right: 5px; vertical-align: middle;
+    background: #5a606b; margin-right: 5px; vertical-align: middle;
   }
   .server-status.ok .dot-s { background: var(--green); }
-  .server-status.off .dot-s { background: #c9a227; }
+  .server-status.off .dot-s { background: #d9a93a; }
   .add-row select {
     border: 1px solid var(--border);
     border-radius: 9px;
     padding: 10px 12px;
     font-size: 0.95rem;
-    background: #fff;
+    background: var(--surface);
+    color: var(--ink);
     cursor: pointer;
   }
 </style>
@@ -679,6 +691,208 @@
     "A causa del maltempo, il volo è stato rinviato e arriveremo più tardi del previsto.": {
       words: [["A causa del","because of"],["maltempo","bad weather"],["il volo","the flight"],["è stato rinviato","has been postponed"],["e","and"],["arriveremo","we'll arrive"],["più tardi","later"],["del previsto","than expected"]],
       note: "<b>è stato rinviato</b> is the <b>passive voice</b> (<i>essere</i> + past participle); the participle <b>agrees</b> with <i>il volo</i> (masc. sing.) → <b>rinviato</b>. <b>arriveremo</b> is the <b>future tense</b>. <b>del previsto</b> = 'than expected' in comparisons. <b>A causa del</b> = <i>a causa di + il</i>."
+    },
+
+    // ---- B2 breakdowns ----
+    "Avrei agito diversamente se lo avessi saputo prima.": {
+      words: [["Avrei agito","I would have acted"],["diversamente","differently"],["se","if"],["lo","it"],["avessi saputo","I had known"],["prima","earlier"]],
+      note: "Classic <b>third conditional</b> (impossible past): <i>se</i> + <b>congiuntivo trapassato</b> (<b>avessi saputo</b>) in the if-clause, <b>condizionale passato</b> (<b>avrei agito</b>) in the result."
+    },
+    "Non avrei preso quella decisione in altre condizioni.": {
+      words: [["Non","not"],["avrei preso","I would have made"],["quella decisione","that decision"],["in altre condizioni","under other conditions"]],
+      note: "<b>avrei preso</b> is the <b>condizionale passato</b> (<i>avere</i> conditional + participle). Italian says <b>prendere</b> una decisione ('take' a decision), not <i>fare</i>."
+    },
+    "Avrei potuto evitare il problema con una migliore preparazione.": {
+      words: [["Avrei potuto","I could have"],["evitare","avoid"],["il problema","the problem"],["con","with"],["una migliore preparazione","better preparation"]],
+      note: "<b>avrei potuto + infinitive</b> = 'could have (done)'. The modal <i>potere</i> carries the <b>condizionale passato</b>; the main verb stays in the infinitive (<b>evitare</b>)."
+    },
+    "Avrei potuto scegliere un'altra opzione se fosse stata disponibile.": {
+      words: [["Avrei potuto","I could have"],["scegliere","choose"],["un'altra opzione","another option"],["se","if"],["fosse stata","it had been"],["disponibile","available"]],
+      note: "<b>fosse stata</b> is the <b>congiuntivo trapassato</b> of <i>essere</i>; with a feminine subject (<i>opzione</i>) the participle agrees → <b>stata</b>. It pairs with <b>avrei potuto</b> in a third-conditional structure."
+    },
+    "Lo farei ancora allo stesso modo oggi.": {
+      words: [["Lo","it"],["farei","I would do"],["ancora","still"],["allo stesso modo","the same way"],["oggi","today"]],
+      note: "<b>farei</b> is the <b>condizionale presente</b> of <i>fare</i>. <b>allo stesso modo</b> = <i>a + lo</i> stesso modo = 'in the same way'."
+    },
+    "Cambierei il mio approccio se la situazione lo richiedesse.": {
+      words: [["Cambierei","I would change"],["il mio approccio","my approach"],["se","if"],["la situazione","the situation"],["lo","it"],["richiedesse","required"]],
+      note: "<b>Second conditional</b> (hypothetical present): <i>se</i> + <b>congiuntivo imperfetto</b> (<b>richiedesse</b>) + <b>condizionale presente</b> (<b>cambierei</b>)."
+    },
+    "Riconsidererei la cosa se apparissero nuove informazioni.": {
+      words: [["Riconsidererei","I would reconsider"],["la cosa","the matter"],["se","if"],["apparissero","appeared"],["nuove informazioni","new information"]],
+      note: "<b>apparissero</b> is the <b>congiuntivo imperfetto</b> of <i>apparire</i> (3rd plural). Note <i>informazioni</i> is <b>plural</b> in Italian and takes a plural verb."
+    },
+    "Continuerei a meno che non accadesse qualcosa di grave.": {
+      words: [["Continuerei","I would continue"],["a meno che","unless"],["non","(not)"],["accadesse","happened"],["qualcosa di grave","something serious"]],
+      note: "<b>a meno che</b> requires the <b>subjunctive</b> and a <b>pleonastic 'non'</b> that is not translated. <b>qualcosa di + adjective</b> = 'something (serious)'."
+    },
+    "Mi fermerei se i rischi diventassero troppo elevati.": {
+      words: [["Mi fermerei","I would stop"],["se","if"],["i rischi","the risks"],["diventassero","became"],["troppo elevati","too high"]],
+      note: "<b>fermarsi</b> is reflexive → <b>mi fermerei</b> (conditional). <b>diventassero</b> is <b>congiuntivo imperfetto</b>; <b>elevati</b> agrees with masc. plural <i>rischi</i>."
+    },
+    "Procederei con cautela in quel caso.": {
+      words: [["Procederei","I would proceed"],["con cautela","cautiously"],["in quel caso","in that case"]],
+      note: "<b>Procederei</b> is the <b>condizionale presente</b> of <i>procedere</i>. <b>con cautela</b> (lit. 'with caution') renders the adverb 'cautiously'."
+    },
+    "Avevo già considerato questa possibilità.": {
+      words: [["Avevo già considerato","I had already considered"],["questa possibilità","this possibility"]],
+      note: "<b>avevo considerato</b> is the <b>trapassato prossimo</b> (<i>avere</i> in imperfetto + participle) — a past action before another past point. <b>già</b> ('already') sits between auxiliary and participle."
+    },
+    "Non mi ero mai aspettato un simile risultato.": {
+      words: [["Non","not"],["mi ero mai aspettato","I had ever expected"],["un simile risultato","such an outcome"]],
+      note: "<b>aspettarsi</b> ('to expect') is reflexive, so the trapassato uses <i>essere</i>: <b>mi ero aspettato</b>. <b>non … mai</b> = 'never'; <b>un simile</b> = 'such a'."
+    },
+    "Avevo dato per scontato che sarebbe stato più facile.": {
+      words: [["Avevo dato per scontato","I had taken for granted"],["che","that"],["sarebbe stato","it would be"],["più facile","easier"]],
+      note: "<b>dare per scontato</b> = 'to take for granted'. <b>sarebbe stato</b> is the <b>condizionale passato</b>, used for the <i>future-in-the-past</i> ('would be') after a past main verb."
+    },
+    "Avevo sottovalutato la difficoltà.": {
+      words: [["Avevo sottovalutato","I had underestimated"],["la difficoltà","the difficulty"]],
+      note: "<b>trapassato prossimo</b> again. <b>sotto-</b> ('under') + <i>valutare</i> ('to assess') = <b>sottovalutare</b>, mirroring English 'under-estimate'."
+    },
+    "Avevo sopravvalutato la mia preparazione.": {
+      words: [["Avevo sopravvalutato","I had overestimated"],["la mia preparazione","my readiness"]],
+      note: "The opposite of <i>sottovalutare</i>: <b>sopra-</b> ('over') + <i>valutare</i> = <b>sopravvalutare</b> = 'to overestimate'."
+    },
+    "Avevo trascurato un dettaglio importante.": {
+      words: [["Avevo trascurato","I had overlooked"],["un dettaglio importante","an important detail"]],
+      note: "<b>trascurare</b> = 'to neglect / overlook'. Descriptive adjectives like <b>importante</b> normally follow the noun in Italian."
+    },
+    "Non ero riuscito a vedere le conseguenze.": {
+      words: [["Non","not"],["ero riuscito a","I had managed to"],["vedere","see"],["le conseguenze","the consequences"]],
+      note: "<b>riuscire</b> takes <i>essere</i>, so the trapassato is <b>ero riuscito</b>. <b>riuscire a + infinitive</b> = 'to manage to'; negated, it becomes 'failed to'."
+    },
+    "Mi ero preparato per uno scenario diverso.": {
+      words: [["Mi ero preparato","I had prepared"],["per","for"],["uno scenario diverso","a different scenario"]],
+      note: "<b>prepararsi</b> is reflexive → trapassato with <i>essere</i>: <b>mi ero preparato</b>. <b>uno</b> is the form of the indefinite article used before <i>s + consonant</i>."
+    },
+    "Avevo pianificato risultati alternativi.": {
+      words: [["Avevo pianificato","I had planned"],["risultati alternativi","alternative outcomes"]],
+      note: "<b>trapassato prossimo</b>. Both noun and adjective are masc. plural and agree: <i>risultati</i> → <b>alternativi</b>."
+    },
+    "Avevo previsto una certa resistenza.": {
+      words: [["Avevo previsto","I had anticipated"],["una certa resistenza","some resistance"]],
+      note: "<b>prevedere</b> = 'to foresee / anticipate', with irregular participle <b>previsto</b>. <b>una certa</b> before a noun = 'a certain / some'."
+    },
+    "Mi sono reso conto che la mia ipotesi era sbagliata.": {
+      words: [["Mi sono reso conto","I realized"],["che","that"],["la mia ipotesi","my assumption"],["era sbagliata","was wrong"]],
+      note: "<b>rendersi conto (di/che)</b> = 'to realize'; it is reflexive, so it takes <i>essere</i> → <b>mi sono reso</b> (→ <b>resa</b> if the speaker is female). <b>era</b> is the <b>imperfetto</b> for a past state."
+    },
+    "Mi sono reso conto che il tempismo contava più dell'impegno.": {
+      words: [["Mi sono reso conto","I realized"],["che","that"],["il tempismo","timing"],["contava","mattered"],["più dell'impegno","more than effort"]],
+      note: "<b>contava</b> is the imperfetto of <i>contare</i> ('to count / matter'). <b>più di</b> = 'more than'; <b>dell'</b> = <i>di + l'</i> before a vowel."
+    },
+    "Mi sono reso conto che la costanza era ciò che contava di più.": {
+      words: [["Mi sono reso conto","I realized"],["che","that"],["la costanza","consistency"],["era","was"],["ciò che","what"],["contava di più","mattered most"]],
+      note: "<b>ciò che</b> = 'that which / what' (relative pronoun). <b>contare di più</b> = 'to matter most'."
+    },
+    "Mi sono reso conto che ciò richiedeva una visione a lungo termine.": {
+      words: [["Mi sono reso conto","I realized"],["che","that"],["ciò","this"],["richiedeva","required"],["una visione a lungo termine","a long-term view"]],
+      note: "<b>ciò</b> is an invariable neuter pronoun ('this/that thing'). <b>a lungo termine</b> = 'long-term' (fixed phrase)."
+    },
+    "Mi sono reso conto che i guadagni a breve termine erano fuorvianti.": {
+      words: [["Mi sono reso conto","I realized"],["che","that"],["i guadagni a breve termine","short-term gains"],["erano fuorvianti","were misleading"]],
+      note: "Contrast with the previous one: <b>a breve termine</b> = 'short-term'. <b>fuorvianti</b> ('misleading') is a plural adjective agreeing with <i>guadagni</i>."
+    },
+    "Ho capito perché questo approccio è fallito.": {
+      words: [["Ho capito","I realized"],["perché","why"],["questo approccio","this approach"],["è fallito","failed"]],
+      note: "<b>fallire</b> ('to fail') takes <i>essere</i> → <b>è fallito</b>, the participle agreeing with <i>approccio</i> (masc.). Here <b>ho capito</b> = 'I realized / understood'."
+    },
+    "Ho capito cosa doveva cambiare.": {
+      words: [["Ho capito","I realized"],["cosa","what"],["doveva cambiare","needed to change"]],
+      note: "<b>cosa</b> here is the relative 'what' (short for <i>che cosa</i>). <b>doveva</b> (imperfetto of <i>dovere</i>) + infinitive = 'had to / needed to'."
+    },
+    "Ho capito come adattare la mia strategia.": {
+      words: [["Ho capito","I realized"],["come","how to"],["adattare","adjust"],["la mia strategia","my strategy"]],
+      note: "<b>come + infinitive</b> expresses 'how to (do something)'. No subject pronoun is needed before the infinitive."
+    },
+    "Ho capito quando smettere di insistere.": {
+      words: [["Ho capito","I realized"],["quando","when to"],["smettere di","stop"],["insistere","pushing"]],
+      note: "<b>smettere di + infinitive</b> = 'to stop (doing)'. <b>quando + infinitive</b> = 'when to'."
+    },
+    "Ho capito quando aspettare con pazienza.": {
+      words: [["Ho capito","I realized"],["quando","when to"],["aspettare","wait"],["con pazienza","patiently"]],
+      note: "<b>aspettare</b> takes a direct object with no preposition = 'to wait (for)'. <b>con pazienza</b> ('with patience') renders the adverb 'patiently'."
+    },
+    "Ho gestito la complessità in modo efficace.": {
+      words: [["Ho gestito","I managed"],["la complessità","complexity"],["in modo efficace","effectively"]],
+      note: "<b>in modo + adjective</b> is a productive way to build adverbs: <b>in modo efficace</b> = 'effectively'. <b>ho gestito</b> is passato prossimo."
+    },
+    "Ho gestito l'incertezza con calma.": {
+      words: [["Ho gestito","I managed"],["l'incertezza","uncertainty"],["con calma","calmly"]],
+      note: "<b>con calma</b> = 'calmly' (lit. 'with calm'). <b>l'</b> = <i>la</i> elided before the vowel of <i>incertezza</i>."
+    },
+    "Ho gestito il rischio in modo strategico.": {
+      words: [["Ho gestito","I managed"],["il rischio","risk"],["in modo strategico","strategically"]],
+      note: "Same <b>in modo + adjective</b> pattern; the adjective agrees with <i>modo</i> (masc. sing.) → <b>strategico</b>."
+    },
+    "Ho gestito le risorse in modo efficiente.": {
+      words: [["Ho gestito","I managed"],["le risorse","resources"],["in modo efficiente","efficiently"]],
+      note: "<b>le risorse</b> is feminine plural, but the adverbial phrase <b>in modo efficiente</b> stays invariable."
+    },
+    "Ho gestito il tempo in modo deliberato.": {
+      words: [["Ho gestito","I managed"],["il tempo","time"],["in modo deliberato","deliberately"]],
+      note: "<b>il tempo</b> means both 'time' and 'weather'. <b>in modo deliberato</b> = 'deliberately'."
+    },
+    "Ho gestito le priorità consapevolmente.": {
+      words: [["Ho gestito","I managed"],["le priorità","priorities"],["consapevolmente","consciously"]],
+      note: "<b>consapevolmente</b> is a true <b>-mente</b> adverb (from <i>consapevole</i> + <i>-mente</i>), an alternative to the <i>in modo…</i> construction."
+    },
+    "Ho gestito meglio la pressione.": {
+      words: [["Ho gestito","I managed"],["meglio","better"],["la pressione","pressure"]],
+      note: "<b>meglio</b> is the irregular comparative <b>adverb</b> ('better'), distinct from the adjective <i>migliore</i>. Adverbs typically follow the verb."
+    },
+    "Ho gestito chiaramente le aspettative.": {
+      words: [["Ho gestito","I managed"],["chiaramente","clearly"],["le aspettative","expectations"]],
+      note: "<b>chiaramente</b> = <i>chiara</i> + <i>-mente</i>; the <b>-mente</b> ending attaches to the <b>feminine</b> form of the adjective."
+    },
+    "Ho gestito le battute d'arresto in modo produttivo.": {
+      words: [["Ho gestito","I managed"],["le battute d'arresto","setbacks"],["in modo produttivo","productively"]],
+      note: "<b>battuta d'arresto</b> (lit. 'halt beat') is an idiom = 'setback'. <b>d'</b> = <i>di</i> elided before a vowel."
+    },
+    "Ho gestito il progresso sistematicamente.": {
+      words: [["Ho gestito","I managed"],["il progresso","progress"],["sistematicamente","systematically"]],
+      note: "Adjectives in <i>-co</i> build their adverb on the <b>feminine</b> form: <i>sistematico → sistematica</i> + <b>-mente</b> = <b>sistematicamente</b>."
+    },
+    "Se avessi studiato di più all'università, ora avrei un lavoro migliore.": {
+      words: [["Se","if"],["avessi studiato","I had studied"],["di più","harder"],["all'università","at university"],["ora","now"],["avrei","I would have"],["un lavoro migliore","a better job"]],
+      note: "A <b>mixed conditional</b>: a past <i>se</i>-clause (<b>congiuntivo trapassato</b> <b>avessi studiato</b>) with a present result (<b>condizionale presente</b> <b>avrei</b>) — the past affects the present 'now'. <b>all'</b> = <i>a + l'</i>."
+    },
+    "Se non avesse perso il volo, oggi sarebbe qui con noi.": {
+      words: [["Se","if"],["non avesse perso","she hadn't missed"],["il volo","the flight"],["oggi","today"],["sarebbe","she would be"],["qui con noi","here with us"]],
+      note: "Another <b>mixed conditional</b>: <b>congiuntivo trapassato</b> (<b>avesse perso</b>) + present <b>condizionale</b> (<b>sarebbe</b>). <b>perdere</b> here = 'to miss (a flight)'."
+    },
+    "Sarei molto più ricco ora se non avessi speso tutti i miei soldi in viaggi.": {
+      words: [["Sarei","I would be"],["molto più ricco","much richer"],["ora","now"],["se","if"],["non avessi speso","I hadn't spent"],["tutti i miei soldi","all my money"],["in viaggi","on travel"]],
+      note: "A result-first <b>mixed conditional</b>. <b>molto più</b> = 'much more'. <b>soldi</b> ('money') is grammatically <b>plural</b> in Italian. <b>spendere</b> → irregular participle <b>speso</b>."
+    },
+    "Se avessi ascoltato il mio consiglio, non saresti in questo guaio.": {
+      words: [["Se","if"],["avessi ascoltato","you had listened to"],["il mio consiglio","my advice"],["non saresti","you wouldn't be"],["in questo guaio","in this trouble"]],
+      note: "<b>ascoltare</b> takes a direct object (no 'to'). Mixed conditional again: <b>congiuntivo trapassato</b> + <b>condizionale presente</b>. <b>guaio</b> = 'trouble / mess'."
+    },
+    "Ciò che mi preoccupa di più è la mancanza di comunicazione all'interno del team.": {
+      words: [["Ciò che","what"],["mi preoccupa di più","concerns me most"],["è","is"],["la mancanza di","the lack of"],["comunicazione","communication"],["all'interno del","within the"],["team","team"]],
+      note: "A <b>pseudo-cleft</b> with <b>ciò che … è …</b> ('what … is …') for emphasis. <b>preoccupare</b> works like <i>piacere</i>: the thing is the subject and <b>mi</b> is the object. <b>all'interno di</b> = 'within'."
+    },
+    "È stata la CEO stessa a decidere di annullare il progetto.": {
+      words: [["È stata","it was"],["la CEO stessa","the CEO herself"],["a decidere","who decided"],["di annullare","to cancel"],["il progetto","the project"]],
+      note: "A <b>cleft sentence</b>: <b>è stato/a … a + infinitive</b> highlights the doer ('it was X who…'). <b>stessa</b> ('herself') agrees as feminine. <b>decidere di + infinitive</b>."
+    },
+    "Quello che dobbiamo fare è rivalutare le nostre priorità prima della scadenza.": {
+      words: [["Quello che","what"],["dobbiamo fare","we need to do"],["è","is"],["rivalutare","reassess"],["le nostre priorità","our priorities"],["prima della scadenza","before the deadline"]],
+      note: "A pseudo-cleft <b>quello che … è …</b> ('what … is …'). <b>dovere</b> + infinitive = 'must / need to'. <b>prima della</b> = <i>prima di + la</i>."
+    },
+    "È il costo, non la qualità, il problema principale qui.": {
+      words: [["È","it is"],["il costo","the cost"],["non la qualità","not the quality"],["il problema principale","the main issue"],["qui","here"]],
+      note: "An <b>emphatic / cleft-like</b> structure contrasting two elements ('it is X, not Y, that…'). Note <b>il problema</b> — a masculine noun despite the <i>-a</i> ending (Greek origin)."
+    },
+    "Mai ho visto una situazione così complicata.": {
+      words: [["Mai","never"],["ho visto","have I seen"],["una situazione","a situation"],["così complicata","so complicated"]],
+      note: "Fronting <b>mai</b> ('never') for emphasis mirrors the English <b>inversion</b> 'Never have I seen…'. <b>così + adjective</b> = 'so (complicated)'; <b>complicata</b> agrees with <i>situazione</i> (fem.)."
+    },
+    "Non sapevo minimamente che quella decisione avrebbe cambiato tutta la mia carriera.": {
+      words: [["Non sapevo minimamente","I had no idea"],["che","that"],["quella decisione","that decision"],["avrebbe cambiato","would change"],["tutta la mia carriera","my entire career"]],
+      note: "<b>non … minimamente</b> = 'not in the slightest'. <b>avrebbe cambiato</b> is the <b>condizionale passato</b> expressing the <i>future-in-the-past</i> ('would change') after the past <b>sapevo</b>."
     }
   };
 
