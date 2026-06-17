@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frasi — Italian Phrase Trainer</title>
+<style>
+  :root {
+    --green: #008C45;
+    --red: #CD212A;
+    --cream: #faf7f0;
+    --ink: #2b2b2b;
+    --muted: #8a857c;
+    --card: #ffffff;
+    --border: #e8e2d6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+  header {
+    text-align: center;
+    padding: 28px 16px 10px;
+  }
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  header h1 .flag { font-size: 1.2rem; }
+  header p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .container { max-width: 680px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---- Now playing card ---- */
+  .player {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 24px 22px;
+    margin-top: 18px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .player::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--green) 33%, #fff 33% 66%, var(--red) 66%);
+  }
+  .phrase-it {
+    font-size: 1.5rem;
+    font-weight: 650;
+    line-height: 1.35;
+    min-height: 2.7em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .phrase-it.speaking { color: var(--green); }
+  .phrase-en {
+    font-size: 1.05rem;
+    color: var(--muted);
+    font-style: italic;
+    min-height: 1.5em;
+    margin-top: 10px;
+    transition: opacity 0.4s;
+  }
+  .phrase-en.hidden-text { opacity: 0; }
+
+  /* ---- Word-by-word breakdown ---- */
+  .breakdown {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    text-align: left;
+  }
+  .breakdown-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    justify-content: center;
+  }
+  .word-chip {
+    background: #f6f2e9;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 5px 9px;
+    line-height: 1.25;
+    text-align: center;
+    min-width: 0;
+  }
+  .word-chip .w-it { font-weight: 650; font-size: 0.92rem; display: block; }
+  .word-chip .w-gloss { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 1px; }
+  .grammar-note {
+    margin-top: 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #f0f9f3;
+    border-left: 3px solid var(--green);
+    border-radius: 0 8px 8px 0;
+    padding: 9px 12px;
+  }
+  .grammar-note b { color: var(--green); }
+  .breakdown-empty {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-align: center;
+    font-style: italic;
+  }
+  .repeat-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 16px 0 4px;
+  }
+  .repeat-dots .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .repeat-dots .dot.done { background: var(--green); }
+  .repeat-dots .dot.now { background: var(--red); transform: scale(1.3); }
+
+  .transport {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 14px;
+  }
+  .transport button {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 50%;
+    width: 52px; height: 52px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .transport button:hover { background: #f3efe6; }
+  .transport button:active { transform: scale(0.93); }
+  .transport .play-btn {
+    width: 68px; height: 68px;
+    font-size: 1.6rem;
+    background: var(--green);
+    color: #fff;
+    border: none;
+  }
+  .transport .play-btn:hover { background: #00a350; }
+
+  /* ---- Settings row ---- */
+  .settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  .setting { display: flex; align-items: center; gap: 8px; }
+  .setting label { color: var(--muted); }
+  .setting select {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 8px;
+    background: #fff;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+  /* toggle switch */
+  .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider-t {
+    position: absolute; inset: 0;
+    background: #d8d2c4;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .slider-t::before {
+    content: "";
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .switch input:checked + .slider-t { background: var(--green); }
+  .switch input:checked + .slider-t::before { transform: translateX(18px); }
+
+  .voice-warn {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--red);
+    display: none;
+  }
+
+  /* ---- Add phrase ---- */
+  .add-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 22px;
+  }
+  .add-box h2 { font-size: 1rem; margin-bottom: 10px; }
+  .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-row input {
+    flex: 1 1 200px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    background: #fff;
+  }
+  .add-row input:focus { outline: 2px solid var(--green); border-color: transparent; }
+  .add-row button {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .add-row button:hover { background: #000; }
+
+  /* ---- Lists ---- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 24px;
+  }
+  .tabs button {
+    border: 1px solid var(--border);
+    background: #f1ece1;
+    border-radius: 10px 10px 0 0;
+    border-bottom: none;
+    padding: 9px 18px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .tabs button.active {
+    background: var(--card);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 0 14px 14px 14px;
+    overflow: hidden;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .item:last-child { border-bottom: none; }
+  .item.playing-now { background: #f0f9f3; }
+  .item .txt { flex: 1; min-width: 0; }
+  .item .it { font-weight: 600; font-size: 0.95rem; }
+  .item .en { font-size: 0.83rem; color: var(--muted); font-style: italic; }
+  .item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .item .actions button {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 8px;
+    width: 34px; height: 34px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .item .actions button:hover { background: #f3efe6; }
+  .item .actions .del:hover { background: #fdeaea; border-color: var(--red); }
+  .empty {
+    padding: 28px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* ---- Groups + counts ---- */
+  .group-badge {
+    display: inline-block;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: #eaf6ee;
+    border: 1px solid #cfe9d8;
+    border-radius: 6px;
+    padding: 1px 6px;
+    margin-left: 7px;
+    vertical-align: middle;
+  }
+  .count-pill {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    background: #f6f2e9;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 9px;
+    white-space: nowrap;
+  }
+  .count-pill b { color: var(--ink); }
+  .server-status {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .server-status .dot-s {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: #c9c3b6; margin-right: 5px; vertical-align: middle;
+  }
+  .server-status.ok .dot-s { background: var(--green); }
+  .server-status.off .dot-s { background: #c9a227; }
+  .add-row select {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    background: #fff;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="flag">🇮🇹</span> Frasi</h1>
+  <p>Listen, repeat, remember.</p>
+</header>
+
+<div class="container">
+
+  <!-- Player -->
+  <div class="player">
+    <div class="phrase-it" id="phraseIt">Press play to begin</div>
+    <div class="phrase-en hidden-text" id="phraseEn">&nbsp;</div>
+    <div class="breakdown" id="breakdown" style="display:none;"></div>
+    <div class="repeat-dots" id="repeatDots"></div>
+    <div id="playCount" style="font-size:0.8rem;color:var(--muted);min-height:1.1em;"></div>
+    <div class="transport">
+      <button id="prevBtn" title="Previous phrase">⏮</button>
+      <button id="playBtn" class="play-btn" title="Play / Pause">▶</button>
+      <button id="nextBtn" title="Next phrase">⏭</button>
+    </div>
+    <div class="settings">
+      <div class="setting">
+        <label for="groupSel">Group</label>
+        <select id="groupSel"><option value="__all">All groups</option></select>
+      </div>
+      <div class="setting">
+        <label for="smartToggle">Smart rotation</label>
+        <label class="switch">
+          <input type="checkbox" id="smartToggle" checked>
+          <span class="slider-t"></span>
+        </label>
+      </div>
+      <div class="setting">
+        <label for="repeatSel">Repeats</label>
+        <select id="repeatSel">
+          <option>1</option><option>2</option><option selected>3</option>
+          <option>4</option><option>5</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label for="voiceSel">Voice</label>
+        <select id="voiceSel">
+          <option value="auto">Auto (best available)</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label for="rateSel">Speed</label>
+        <select id="rateSel">
+          <option value="0.6">Slow</option>
+          <option value="0.8" selected>Normal</option>
+          <option value="1">Fast</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label for="transToggle">Show translation</label>
+        <label class="switch">
+          <input type="checkbox" id="transToggle" checked>
+          <span class="slider-t"></span>
+        </label>
+      </div>
+      <div class="setting">
+        <label for="speakTransToggle">Speak translation</label>
+        <label class="switch">
+          <input type="checkbox" id="speakTransToggle">
+          <span class="slider-t"></span>
+        </label>
+      </div>
+    </div>
+    <div class="voice-warn" id="voiceWarn">⚠️ No high-quality Italian voice found on this device. iPhone: Settings → Accessibility → Spoken Content → Voices → Italian → download <b>Federica (Premium)</b> or <b>Alice (Enhanced)</b>. Mac: System Settings → Accessibility → Spoken Content → Manage Voices.</div>
+    <div id="engineStatus" style="margin-top:10px;font-size:0.75rem;color:var(--muted);"></div>
+    <div id="serverStatus" class="server-status"><span class="dot-s"></span>Checking for count server…</div>
+  </div>
+
+  <!-- ElevenLabs premium voice -->
+  <div class="add-box">
+    <h2>🎙 Premium voice — ElevenLabs <span style="font-weight:400;color:var(--muted);font-size:0.8rem">(optional, most authentic)</span></h2>
+    <div class="add-row">
+      <input id="elKeyInput" type="password" placeholder="Paste your ElevenLabs API key" autocomplete="off">
+      <button id="elSaveBtn">Connect</button>
+    </div>
+    <div id="elStatus" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">
+      Free at <b>elevenlabs.io</b>: sign up → click your profile (bottom-left) → API Keys → Create. Your key is stored only on this device. Each phrase is generated once, then cached — the free tier covers hundreds of phrases.
+    </div>
+  </div>
+
+  <!-- Add phrase -->
+  <div class="add-box">
+    <h2>Add a phrase</h2>
+    <div class="add-row">
+      <input id="newIt" placeholder="Italian — e.g. Fammi sapere quando sei libero" autocomplete="off">
+      <input id="newEn" placeholder="English — e.g. Let me know when you're free" autocomplete="off">
+      <select id="newGroup" title="Group for this phrase"></select>
+      <button id="addBtn">Add</button>
+    </div>
+  </div>
+
+  <!-- Lists -->
+  <div class="tabs">
+    <button id="tabActive" class="active">On rotation (<span id="countActive">0</span>)</button>
+    <button id="tabArchived">Archived (<span id="countArchived">0</span>)</button>
+  </div>
+  <div class="list" id="listEl"></div>
+
+</div>
+
+<script>
+(function() {
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = "frasi-phrases-v1";
+
+  const seed = [
+    ["Potrebbe parlare più lentamente, per favore?", "Could you speak more slowly, please?"],
+    ["Potrebbe ripetere? Non ho capito bene.", "Could you repeat that? I didn't quite understand."],
+    ["Vorrei prenotare un tavolo per due per stasera.", "I'd like to book a table for two for tonight."],
+    ["Mi può consigliare un piatto tipico della zona?", "Can you recommend a typical local dish?"],
+    ["Sto solo dando un'occhiata, grazie.", "I'm just looking around, thanks."],
+    ["Quanto ci vuole per arrivare in centro?", "How long does it take to get to the center?"],
+    ["Mi sa che ho lasciato il portafoglio a casa.", "I think I left my wallet at home."],
+    ["Che ne dici di andare al cinema stasera?", "How about going to the movies tonight?"],
+    ["Era da tanto che non ci vedevamo!", "It's been so long since we last saw each other!"],
+    ["Non vedo l'ora di vederti.", "I can't wait to see you."],
+    ["Fammi sapere quando sei libero.", "Let me know when you're free."],
+    ["Secondo me, vale la pena visitarlo.", "In my opinion, it's worth visiting."],
+    ["Mi ci è voluta un'ora per arrivare qui.", "It took me an hour to get here."],
+    ["Magari potremmo fare due passi dopo cena.", "Maybe we could take a walk after dinner."],
+    ["Devo sbrigare delle commissioni nel pomeriggio.", "I have to run some errands in the afternoon."],
+    ["Ci tengo molto a questo progetto.", "This project means a lot to me."],
+    ["Susanna li ha già visti tutti?", "Has Susanna already seen them all?"],
+    ["Mi piacerebbe venirti a trovare quando sarò in Italia, ma prima voglio migliorare il mio italiano per parlare in modo più naturale.", "I'd like to come visit you when I'm in Italy, but first I want to improve my Italian to speak more naturally."],
+    ["Non riesco a capire perché abbiano preso questa decisione senza consultarci.", "I can't understand why they took this decision without consulting us."],
+    ["Se mi organizzo bene, riesco a finire il lavoro prima della scadenza.", "If I organise myself well, I can finish the work before the deadline."],
+    ["Devo fare una scelta importante riguardo al mio futuro professionale.", "I have to make an important choice regarding my professional future."],
+    ["Mi farebbe piacere passare più tempo con la famiglia durante il fine settimana.", "I would enjoy spending more time with my family during the weekend."],
+    ["Secondo me stai complicando un po' troppo le cose.", "I think you're overcomplicating things a bit."],
+    ["A dire il vero, non ci avevo pensato.", "To be honest, I hadn't thought about it."],
+    ["Se devo essere sincero, non mi convince del tutto.", "If I'm honest, it doesn't fully convince me."],
+    ["Non è proprio quello che avevo in mente.", "That's not exactly what I had in mind."],
+    ["Alla fine, dipende tutto da come lo guardi.", "In the end, it all depends on how you look at it."],
+    ["Non ha molto senso farlo in questo modo.", "It doesn't make much sense to do it this way."],
+    ["Se vuoi, possiamo parlarne con calma.", "If you want, we can talk about it calmly."],
+    ["Mi sembra una buona idea, tutto sommato.", "It seems like a good idea, all things considered."],
+    ["Non è detto che funzioni.", "It's not guaranteed to work."],
+    ["Vedila così: potrebbe anche essere un'opportunità.", "Look at it this way: it could be an opportunity."],
+    ["A causa del maltempo, il volo è stato rinviato e arriveremo più tardi del previsto.", "Due to the bad weather, the flight has been postponed and we'll arrive later than expected."]
+  ];
+
+  const DEFAULT_GROUP = "Default";
+
+  // ---- B2 level phrases (HyperLingua) ----
+  const b2Seed = [
+    ["Avrei agito diversamente se lo avessi saputo prima.", "I would have acted differently if I had known earlier."],
+    ["Non avrei preso quella decisione in altre condizioni.", "I wouldn't have made that decision under other conditions."],
+    ["Avrei potuto evitare il problema con una migliore preparazione.", "I could have avoided the problem with better preparation."],
+    ["Avrei potuto scegliere un'altra opzione se fosse stata disponibile.", "I might have chosen another option if it were available."],
+    ["Lo farei ancora allo stesso modo oggi.", "I would still do it the same way today."],
+    ["Cambierei il mio approccio se la situazione lo richiedesse.", "I would change my approach if the situation required it."],
+    ["Riconsidererei la cosa se apparissero nuove informazioni.", "I would reconsider this if new information appeared."],
+    ["Continuerei a meno che non accadesse qualcosa di grave.", "I would continue unless something serious happened."],
+    ["Mi fermerei se i rischi diventassero troppo elevati.", "I would stop if the risks became too high."],
+    ["Procederei con cautela in quel caso.", "I would proceed cautiously in that case."],
+    ["Avevo già considerato questa possibilità.", "I had already considered this possibility."],
+    ["Non mi ero mai aspettato un simile risultato.", "I had never expected such an outcome."],
+    ["Avevo dato per scontato che sarebbe stato più facile.", "I had assumed this would be easier."],
+    ["Avevo sottovalutato la difficoltà.", "I had underestimated the difficulty."],
+    ["Avevo sopravvalutato la mia preparazione.", "I had overestimated my readiness."],
+    ["Avevo trascurato un dettaglio importante.", "I had overlooked an important detail."],
+    ["Non ero riuscito a vedere le conseguenze.", "I had failed to see the consequences."],
+    ["Mi ero preparato per uno scenario diverso.", "I had prepared for a different scenario."],
+    ["Avevo pianificato risultati alternativi.", "I had planned for alternative outcomes."],
+    ["Avevo previsto una certa resistenza.", "I had anticipated some resistance."],
+    ["Mi sono reso conto che la mia ipotesi era sbagliata.", "I realized that my assumption was wrong."],
+    ["Mi sono reso conto che il tempismo contava più dell'impegno.", "I realized that timing mattered more than effort."],
+    ["Mi sono reso conto che la costanza era ciò che contava di più.", "I realized that consistency mattered most."],
+    ["Mi sono reso conto che ciò richiedeva una visione a lungo termine.", "I realized that this required a long-term view."],
+    ["Mi sono reso conto che i guadagni a breve termine erano fuorvianti.", "I realized that short-term gains were misleading."],
+    ["Ho capito perché questo approccio è fallito.", "I realized why this approach failed."],
+    ["Ho capito cosa doveva cambiare.", "I realized what needed to change."],
+    ["Ho capito come adattare la mia strategia.", "I realized how to adjust my strategy."],
+    ["Ho capito quando smettere di insistere.", "I realized when to stop pushing."],
+    ["Ho capito quando aspettare con pazienza.", "I realized when to wait patiently."],
+    ["Ho gestito la complessità in modo efficace.", "I managed complexity effectively."],
+    ["Ho gestito l'incertezza con calma.", "I managed uncertainty calmly."],
+    ["Ho gestito il rischio in modo strategico.", "I managed risk strategically."],
+    ["Ho gestito le risorse in modo efficiente.", "I managed resources efficiently."],
+    ["Ho gestito il tempo in modo deliberato.", "I managed time deliberately."],
+    ["Ho gestito le priorità consapevolmente.", "I managed priorities consciously."],
+    ["Ho gestito meglio la pressione.", "I managed pressure better."],
+    ["Ho gestito chiaramente le aspettative.", "I managed expectations clearly."],
+    ["Ho gestito le battute d'arresto in modo produttivo.", "I managed setbacks productively."],
+    ["Ho gestito il progresso sistematicamente.", "I managed progress systematically."],
+    ["Se avessi studiato di più all'università, ora avrei un lavoro migliore.", "If I had studied harder at university, I would have a better job now."],
+    ["Se non avesse perso il volo, oggi sarebbe qui con noi.", "If she hadn't missed her flight, she would be here with us today."],
+    ["Sarei molto più ricco ora se non avessi speso tutti i miei soldi in viaggi.", "I would be much richer now if I hadn't spent all my money on travel."],
+    ["Se avessi ascoltato il mio consiglio, non saresti in questo guaio.", "If you had listened to my advice, you wouldn't be in this trouble."],
+    ["Ciò che mi preoccupa di più è la mancanza di comunicazione all'interno del team.", "What concerns me most is the lack of communication within the team."],
+    ["È stata la CEO stessa a decidere di annullare il progetto.", "It was the CEO herself who decided to cancel the project."],
+    ["Quello che dobbiamo fare è rivalutare le nostre priorità prima della scadenza.", "What we need to do is reassess our priorities before the deadline."],
+    ["È il costo, non la qualità, il problema principale qui.", "It is the cost, not the quality, that is the main issue here."],
+    ["Mai ho visto una situazione così complicata.", "Never have I seen such a complicated situation."],
+    ["Non sapevo minimamente che quella decisione avrebbe cambiato tutta la mia carriera.", "Little did I know that the decision would change my entire career."]
+  ];
+
+  // ---- Word-by-word breakdowns + grammar notes (keyed by Italian text) ----
+  const BREAKDOWNS = {
+    "Potrebbe parlare più lentamente, per favore?": {
+      words: [["Potrebbe","could (you)"],["parlare","to speak"],["più","more"],["lentamente","slowly"],["per favore","please"]],
+      note: "Formal register (the <b>Lei</b> form). <b>Potrebbe</b> is the conditional of <i>potere</i> — using the conditional instead of the plain present softens the request and makes it polite. <b>lentamente</b> is an adverb built from the adjective <i>lento</i> + the ending <i>-mente</i> (just like English <i>-ly</i>)."
+    },
+    "Potrebbe ripetere? Non ho capito bene.": {
+      words: [["Potrebbe","could (you)"],["ripetere","to repeat"],["Non","not"],["ho","I have"],["capito","understood"],["bene","well"]],
+      note: "<b>ho capito</b> is the <b>passato prossimo</b> (perfect tense): <i>avere</i> + past participle. Negation wraps the auxiliary: <b>non + ho</b>, never the participle."
+    },
+    "Vorrei prenotare un tavolo per due per stasera.": {
+      words: [["Vorrei","I would like"],["prenotare","to book"],["un","a"],["tavolo","table"],["per","for"],["due","two"],["per","for"],["stasera","tonight"]],
+      note: "<b>Vorrei</b> is the conditional of <i>volere</i> — the standard polite way to ask for something (literally 'I would want'). Plain <i>voglio</i> ('I want') would sound blunt."
+    },
+    "Mi può consigliare un piatto tipico della zona?": {
+      words: [["Mi","to me"],["può","can (you)"],["consigliare","to recommend"],["un","a"],["piatto","dish"],["tipico","typical"],["della","of the"],["zona","area"]],
+      note: "<b>Mi</b> is an indirect-object pronoun ('to me') and sits before the conjugated verb. <b>della</b> is a contraction of <i>di + la</i>. Formal <b>può</b> again uses the Lei form."
+    },
+    "Sto solo dando un'occhiata, grazie.": {
+      words: [["Sto","I am"],["solo","just"],["dando","giving"],["un'occhiata","a look"],["grazie","thanks"]],
+      note: "<b>sto + gerund</b> (<i>stare</i> + <i>-ando/-endo</i>) is the present continuous, like English '-ing'. <b>dare un'occhiata</b> is an idiom = 'to take a look'. <b>un'</b> is <i>una</i> elided before a vowel."
+    },
+    "Quanto ci vuole per arrivare in centro?": {
+      words: [["Quanto","how much"],["ci vuole","does it take"],["per","to"],["arrivare","arrive"],["in","in"],["centro","centre"]],
+      note: "<b>volerci</b> (<i>ci vuole / ci vogliono</i>) is the set idiom for how much time or effort something takes. The <b>ci</b> here is impersonal — it isn't 'us'."
+    },
+    "Mi sa che ho lasciato il portafoglio a casa.": {
+      words: [["Mi sa che","I reckon that"],["ho","I have"],["lasciato","left"],["il","the"],["portafoglio","wallet"],["a","at"],["casa","home"]],
+      note: "<b>Mi sa che</b> is a colloquial idiom = 'I have a feeling that / I reckon'. <b>ho lasciato</b> is passato prossimo. Note <b>a casa</b> ('at home') takes no article."
+    },
+    "Che ne dici di andare al cinema stasera?": {
+      words: [["Che ne dici di","how about"],["andare","going"],["al","to the"],["cinema","cinema"],["stasera","tonight"]],
+      note: "<b>Che ne dici di + infinitive</b> is a fixed way to make a suggestion. The <b>ne</b> means 'about it'. <b>al</b> = <i>a + il</i>."
+    },
+    "Era da tanto che non ci vedevamo!": {
+      words: [["Era","it was"],["da tanto","for a long time"],["che","that"],["non","not"],["ci","each other"],["vedevamo","we saw"]],
+      note: "<b>Reciprocal reflexive</b>: <b>ci vedevamo</b> = 'we saw <i>each other</i>'. Both verbs are in the <b>imperfetto</b> (<i>era</i>, <i>vedevamo</i>) because they describe an ongoing past situation."
+    },
+    "Non vedo l'ora di vederti.": {
+      words: [["Non vedo l'ora","I can't wait"],["di","to"],["vederti","see you"]],
+      note: "<b>Non vedo l'ora di</b> is an idiom — literally 'I don't see the hour', meaning 'I can't wait'. <b>vederti</b> is the infinitive <i>vedere</i> with the pronoun <b>ti</b> ('you') attached to the end."
+    },
+    "Fammi sapere quando sei libero.": {
+      words: [["Fammi","let me"],["sapere","know"],["quando","when"],["sei","you are"],["libero","free"]],
+      note: "Informal <b>imperative</b>: the <i>tu</i> command <i>fa'</i> + the pronoun <b>mi</b> attaches and <b>doubles the m</b> → <b>fammi</b>. <i>fammi sapere</i> = 'let me know'."
+    },
+    "Secondo me, vale la pena visitarlo.": {
+      words: [["Secondo me","in my opinion"],["vale la pena","it's worth"],["visitarlo","visiting it"]],
+      note: "<b>valere la pena</b> = 'to be worth it'. <b>visitarlo</b> = infinitive <i>visitare</i> + object pronoun <b>lo</b> ('it') attached to the end."
+    },
+    "Mi ci è voluta un'ora per arrivare qui.": {
+      words: [["Mi","for me"],["ci è voluta","it took"],["un'ora","an hour"],["per","to"],["arrivare","get"],["qui","here"]],
+      note: "<b>volerci</b> in the past uses <i>essere</i>, so the participle <b>agrees in gender</b> with the subject: <i>un'ora</i> is feminine → <b>voluta</b>. The added <b>mi</b> says who it took the time for."
+    },
+    "Magari potremmo fare due passi dopo cena.": {
+      words: [["Magari","maybe"],["potremmo","we could"],["fare due passi","take a stroll"],["dopo","after"],["cena","dinner"]],
+      note: "<b>potremmo</b> is the conditional of <i>potere</i> — 'we could', a gentle suggestion. <b>fare due passi</b> is an idiom (literally 'take two steps') = 'go for a short walk'."
+    },
+    "Devo sbrigare delle commissioni nel pomeriggio.": {
+      words: [["Devo","I have to"],["sbrigare","get done"],["delle","some"],["commissioni","errands"],["nel","in the"],["pomeriggio","afternoon"]],
+      note: "<b>delle</b> is the <b>partitive article</b> (<i>di + le</i>) = 'some'. <b>sbrigare le commissioni</b> = 'to run errands'. <b>nel</b> = <i>in + il</i>."
+    },
+    "Ci tengo molto a questo progetto.": {
+      words: [["Ci tengo","I really care"],["molto","a lot"],["a","about"],["questo","this"],["progetto","project"]],
+      note: "<b>tenerci a (qualcosa)</b> = 'to care about something'. The <b>ci</b> is a fixed part of the idiom and reinforces the <i>a + thing</i> that follows."
+    },
+    "Susanna li ha già visti tutti?": {
+      words: [["Susanna","Susanna"],["li","them"],["ha","has"],["già","already"],["visti","seen"],["tutti","all"]],
+      note: "When a direct-object pronoun (<b>li</b>, masc. plural) comes <b>before</b> a passato prossimo, the participle must <b>agree</b> with it: <i>visto</i> → <b>visti</b>."
+    },
+    "Mi piacerebbe venirti a trovare quando sarò in Italia, ma prima voglio migliorare il mio italiano per parlare in modo più naturale.": {
+      words: [["Mi piacerebbe","I'd like"],["venirti a trovare","to come visit you"],["quando","when"],["sarò","I'll be"],["in Italia","in Italy"],["ma","but"],["prima","first"],["voglio","I want"],["migliorare","to improve"],["il mio italiano","my Italian"],["per","to"],["parlare","speak"],["in modo più naturale","more naturally"]],
+      note: "<b>venire a trovare</b> = 'to visit (a person)'; the pronoun <b>ti</b> attaches to <i>venire</i>. After <b>quando</b> referring to the future, Italian uses the real future <b>sarò</b> (not the present). <b>Mi piacerebbe</b> is the conditional of <i>piacere</i> for politeness."
+    },
+    "Non riesco a capire perché abbiano preso questa decisione senza consultarci.": {
+      words: [["Non riesco a","I can't manage to"],["capire","understand"],["perché","why"],["abbiano preso","they took"],["questa decisione","this decision"],["senza","without"],["consultarci","consulting us"]],
+      note: "<b>riuscire a + infinitive</b> = 'to manage to'. The <b>subjunctive</b> <b>abbiano preso</b> is triggered by the doubt/feeling in 'non riesco a capire perché…'. <b>consultarci</b> = <i>consultare</i> + <b>ci</b> ('us')."
+    },
+    "Se mi organizzo bene, riesco a finire il lavoro prima della scadenza.": {
+      words: [["Se","if"],["mi organizzo","I organise myself"],["bene","well"],["riesco a","I manage to"],["finire","finish"],["il lavoro","the work"],["prima della","before"],["scadenza","deadline"]],
+      note: "<b>organizzarsi</b> is a <b>reflexive verb</b> → <b>mi organizzo</b>. This is a real (open) conditional: <i>se</i> + present, then present. <b>prima della</b> = <i>prima di + la</i>."
+    },
+    "Devo fare una scelta importante riguardo al mio futuro professionale.": {
+      words: [["Devo","I have to"],["fare una scelta","make a choice"],["importante","important"],["riguardo al","regarding"],["mio futuro","my future"],["professionale","professional"]],
+      note: "Italian says <b>fare</b> una scelta ('make a choice'), not <i>prendere</i>. <b>riguardo a</b> = 'concerning / regarding'; here <b>al</b> = <i>a + il</i>."
+    },
+    "Mi farebbe piacere passare più tempo con la famiglia durante il fine settimana.": {
+      words: [["Mi farebbe piacere","I'd be glad"],["passare","to spend"],["più tempo","more time"],["con la famiglia","with the family"],["durante","during"],["il fine settimana","the weekend"]],
+      note: "<b>fare piacere a qualcuno</b> = 'to please someone'; in the conditional <b>farebbe</b> = 'would'. Italian uses <b>passare</b> (not <i>spendere</i>) for spending <i>time</i>."
+    },
+    "Secondo me stai complicando un po' troppo le cose.": {
+      words: [["Secondo me","in my opinion"],["stai complicando","you're complicating"],["un po' troppo","a bit too much"],["le cose","things"]],
+      note: "<b>stai + gerund</b> is the present continuous. <b>un po'</b> is <i>un poco</i> truncated (note the apostrophe marking the dropped <i>-co</i>)."
+    },
+    "A dire il vero, non ci avevo pensato.": {
+      words: [["A dire il vero","to tell the truth"],["non","not"],["ci","about it"],["avevo pensato","I had thought"]],
+      note: "<b>pensarci</b> = 'to think about it'; the <b>ci</b> replaces <i>a + (thing)</i>. <b>avevo pensato</b> is the <b>trapassato prossimo</b> ('had thought')."
+    },
+    "Se devo essere sincero, non mi convince del tutto.": {
+      words: [["Se devo essere sincero","if I'm honest"],["non","not"],["mi","me"],["convince","convinces"],["del tutto","entirely"]],
+      note: "<b>mi convince</b> = 'it convinces me' — <i>convincere</i> works with an object pronoun. <b>del tutto</b> is a set phrase = 'completely / entirely'."
+    },
+    "Non è proprio quello che avevo in mente.": {
+      words: [["Non è","it's not"],["proprio","exactly"],["quello che","what"],["avevo in mente","I had in mind"]],
+      note: "<b>quello che</b> = 'the thing that / what'. <b>avere in mente</b> = 'to have in mind'; here in the imperfetto <b>avevo</b>. <b>proprio</b> intensifies = 'exactly/really'."
+    },
+    "Alla fine, dipende tutto da come lo guardi.": {
+      words: [["Alla fine","in the end"],["dipende","it depends"],["tutto","everything"],["da","on"],["come","how"],["lo guardi","you look at it"]],
+      note: "<b>dipendere da</b> = 'to depend on' (the preposition is <i>da</i>, not <i>su</i>). <b>lo</b> is the direct-object pronoun 'it', placed before the verb <i>guardi</i>."
+    },
+    "Non ha molto senso farlo in questo modo.": {
+      words: [["Non ha senso","it makes no sense"],["molto","much"],["farlo","to do it"],["in questo modo","this way"]],
+      note: "<b>avere senso</b> = 'to make sense' (Italian uses <i>avere</i>, 'to have' sense). <b>farlo</b> = infinitive <i>fare</i> + pronoun <b>lo</b> attached."
+    },
+    "Se vuoi, possiamo parlarne con calma.": {
+      words: [["Se vuoi","if you want"],["possiamo","we can"],["parlarne","talk about it"],["con calma","calmly"]],
+      note: "<b>ne</b> = 'about it', attached to the infinitive <i>parlare</i> → <b>parlarne</b>. <b>con calma</b> ('with calm') is how Italian forms many adverbs of manner."
+    },
+    "Mi sembra una buona idea, tutto sommato.": {
+      words: [["Mi sembra","it seems to me"],["una buona idea","a good idea"],["tutto sommato","all things considered"]],
+      note: "<b>sembrare</b> behaves like <i>piacere</i>: <b>mi sembra</b> = 'it seems to me'. <b>tutto sommato</b> is a fixed phrase = 'all in all'."
+    },
+    "Non è detto che funzioni.": {
+      words: [["Non è detto che","it's not certain that"],["funzioni","it works"]],
+      note: "<b>Non è detto che</b> ('it's not a given that') expresses doubt, so it triggers the <b>subjunctive</b>: <i>funziona</i> → <b>funzioni</b>."
+    },
+    "Vedila così: potrebbe anche essere un'opportunità.": {
+      words: [["Vedila","see it"],["così","like this"],["potrebbe","it could"],["anche","even"],["essere","be"],["un'opportunità","an opportunity"]],
+      note: "Informal <b>imperative</b>: <i>tu</i> command <i>vedi</i> + pronoun <b>la</b> attached → <b>vedila</b>. <b>potrebbe</b> is the conditional of <i>potere</i> = 'could / might'."
+    },
+    "A causa del maltempo, il volo è stato rinviato e arriveremo più tardi del previsto.": {
+      words: [["A causa del","because of"],["maltempo","bad weather"],["il volo","the flight"],["è stato rinviato","has been postponed"],["e","and"],["arriveremo","we'll arrive"],["più tardi","later"],["del previsto","than expected"]],
+      note: "<b>è stato rinviato</b> is the <b>passive voice</b> (<i>essere</i> + past participle); the participle <b>agrees</b> with <i>il volo</i> (masc. sing.) → <b>rinviato</b>. <b>arriveremo</b> is the <b>future tense</b>. <b>del previsto</b> = 'than expected' in comparisons. <b>A causa del</b> = <i>a causa di + il</i>."
+    }
+  };
+
+  // ---- State ----
+  let phrases = load();
+  save(); // persist any newly merged phrases
+  let currentIdx = 0;          // index within active list
+  let repeatNum = 0;           // which repeat we're on (1-based)
+  let isPlaying = false;
+  let currentTab = "active";
+  let timer = null;
+  let utterCounter = 0;        // guards against stale onend callbacks
+
+  // group filter ("__all" = every group)
+  const GROUP_KEY = "frasi-group-v1";
+  let groupChoice = localStorage.getItem(GROUP_KEY) || "__all";
+
+  function load() {
+    let stored = null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) stored = JSON.parse(raw);
+    } catch (e) {}
+    if (!stored) {
+      const fromSeed = seed.map((p, i) => ({ id: i + 1, it: p[0], en: p[1], archived: false, group: DEFAULT_GROUP }));
+      const base = fromSeed.length;
+      const fromB2 = b2Seed.map((p, i) => ({ id: base + i + 1, it: p[0], en: p[1], archived: false, group: "B2" }));
+      return fromSeed.concat(fromB2);
+    }
+    // migrate older records that predate the group field
+    stored.forEach(p => { if (!p.group) p.group = DEFAULT_GROUP; });
+    // merge in any seed/B2 phrases added to the file after first run
+    const have = new Set(stored.map(p => p.it));
+    let nextId = Math.max(0, ...stored.map(p => p.id)) + 1;
+    seed.forEach(p => {
+      if (!have.has(p[0])) stored.push({ id: nextId++, it: p[0], en: p[1], archived: false, group: DEFAULT_GROUP });
+    });
+    b2Seed.forEach(p => {
+      if (!have.has(p[0])) stored.push({ id: nextId++, it: p[0], en: p[1], archived: false, group: "B2" });
+    });
+    return stored;
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(phrases)); } catch (e) {}
+  }
+  function groupNames() {
+    return [...new Set(phrases.map(p => p.group || DEFAULT_GROUP))].sort();
+  }
+  function activeList() {
+    return phrases.filter(p => !p.archived && (groupChoice === "__all" || (p.group || DEFAULT_GROUP) === groupChoice));
+  }
+
+  // ---- Listen counts (server-backed, keyed by Italian text) ----
+  const COUNTS_KEY = "frasi-counts-v1";
+  const SERVER_URL = (location.protocol === "http:" || location.protocol === "https:")
+    ? "" : "http://localhost:3000";   // same-origin when served by server.js; localhost when opened as a file
+  let counts = loadCountsLocal();
+  let lastSeq = {};            // tie-breaker for equal-rotation: least-recently-played wins
+  let seqCounter = 0;
+  let serverOk = false;
+
+  function loadCountsLocal() {
+    try { return JSON.parse(localStorage.getItem(COUNTS_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function saveCountsLocal() {
+    try { localStorage.setItem(COUNTS_KEY, JSON.stringify(counts)); } catch (e) {}
+  }
+  function getCount(it) { return counts[it] || 0; }
+
+  function setServerStatus(ok, msg) {
+    serverOk = ok;
+    const el = $("serverStatus");
+    if (!el) return;
+    el.className = "server-status " + (ok ? "ok" : "off");
+    el.innerHTML = '<span class="dot-s"></span>' + msg;
+  }
+
+  // On load: push local counts to the server and adopt the merged result as truth.
+  async function syncCounts() {
+    try {
+      const r = await fetch(SERVER_URL + "/api/counts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(counts)
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      counts = await r.json();
+      saveCountsLocal();
+      setServerStatus(true, "Counts synced with server.");
+      renderList();
+    } catch (e) {
+      setServerStatus(false, "Counts are saved on this device.");
+    }
+  }
+
+  // Record one listen for a phrase (local immediately, server best-effort).
+  function registerListen(p) {
+    counts[p.it] = getCount(p.it) + 1;
+    lastSeq[p.it] = ++seqCounter;
+    saveCountsLocal();
+    updateCountDisplay();
+    renderList();
+    fetch(SERVER_URL + "/api/increment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ it: p.it, by: 1 })
+    }).then(r => {
+      if (r.ok) { if (!serverOk) setServerStatus(true, "Counts synced with server."); return r.json(); }
+      throw new Error("HTTP " + r.status);
+    }).then(res => {
+      if (res && typeof res.count === "number") {   // adopt server's authoritative value
+        counts[p.it] = Math.max(counts[p.it], res.count);
+        saveCountsLocal();
+      }
+    }).catch(() => setServerStatus(false, "Server offline — counting locally on this device."));
+  }
+
+  // ---- Voices ----
+  const engineStatusEl = document.getElementById("engineStatus");
+  const VOICE_KEY = "frasi-voice-v2";
+  let voiceChoice = localStorage.getItem(VOICE_KEY) || "auto";
+  let itVoice = null, enVoice = null;
+  let elVoices = [];   // ElevenLabs voices, filled in after connect
+
+  // rank: premium > enhanced > google/siri > rest; compact/eloquence last
+  function quality(v) {
+    const n = v.name.toLowerCase();
+    if (/premium/.test(n)) return 5;
+    if (/enhanced/.test(n)) return 4;
+    if (/google|siri/.test(n)) return 3;
+    if (/compact|eloquence/.test(n)) return 0;
+    return 2;
+  }
+  function italianVoices() {
+    return speechSynthesis.getVoices()
+      .filter(v => v.lang.toLowerCase().startsWith("it"))
+      .sort((a, b) => quality(b) - quality(a));
+  }
+  function buildVoiceOptions() {
+    const sel = document.getElementById("voiceSel");
+    sel.innerHTML = "";
+    if (elVoices.length) {
+      const og = document.createElement("optgroup");
+      og.label = "ElevenLabs — premium";
+      elVoices.forEach(v => {
+        const o = document.createElement("option");
+        o.value = "el:" + v.id;
+        o.textContent = v.name + " ★";
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    }
+    const auto = document.createElement("option");
+    auto.value = "auto";
+    auto.textContent = "Auto (best device voice)";
+    sel.appendChild(auto);
+    italianVoices().forEach(v => {
+      const o = document.createElement("option");
+      o.value = v.name;
+      o.textContent = v.name;
+      sel.appendChild(o);
+    });
+    const vals = Array.from(sel.options).map(o => o.value);
+    sel.value = vals.includes(voiceChoice) ? voiceChoice
+              : (elVoices.length ? "el:" + elVoices[0].id : "auto");
+    if (sel.value !== voiceChoice) {
+      voiceChoice = sel.value;
+      try { localStorage.setItem(VOICE_KEY, voiceChoice); } catch (e) {}
+    }
+    updateEngineStatus();
+  }
+  function updateEngineStatus() {
+    if (voiceChoice.startsWith("el:")) {
+      engineStatusEl.textContent = "Voice: " + elName(voiceChoice) + " (ElevenLabs)";
+      $("voiceWarn").style.display = "none";
+      return;
+    }
+    const v = chosenVoice();
+    engineStatusEl.textContent = v ? "Voice: " + v.name : "";
+    $("voiceWarn").style.display = (itVoice && quality(itVoice) >= 3) ? "none" : "block";
+  }
+  function pickVoices() {
+    const vs = speechSynthesis.getVoices();
+    if (!vs.length) return;
+    itVoice = italianVoices()[0] || null;
+    enVoice = vs.filter(v => v.lang.toLowerCase().startsWith("en"))
+                .sort((a, b) => quality(b) - quality(a))[0] || null;
+    buildVoiceOptions();
+  }
+  document.getElementById("voiceSel").onchange = function() {
+    voiceChoice = this.value;
+    try { localStorage.setItem(VOICE_KEY, voiceChoice); } catch (e) {}
+    updateEngineStatus();
+  };
+  function chosenVoice() {
+    // always resolve from the live voice list (iOS loads voices late)
+    if (voiceChoice !== "auto" && !voiceChoice.startsWith("el:")) {
+      const v = speechSynthesis.getVoices().find(v => v.name === voiceChoice);
+      if (v) return v;
+    }
+    return italianVoices()[0] || null;
+  }
+  function liveEnVoice() {
+    return speechSynthesis.getVoices()
+      .filter(v => v.lang.toLowerCase().startsWith("en"))
+      .sort((a, b) => quality(b) - quality(a))[0] || null;
+  }
+  pickVoices();
+  speechSynthesis.onvoiceschanged = pickVoices;
+  // iOS Safari often returns an empty/partial voice list at load and never
+  // fires voiceschanged — poll for a few seconds until voices appear
+  let _pollN = 0;
+  const _poll = setInterval(() => {
+    const n = speechSynthesis.getVoices().length;
+    if (n > 0) { pickVoices(); clearInterval(_poll); }
+    else if (++_pollN > 24) clearInterval(_poll);
+  }, 250);
+
+  // ---- DOM ----
+  const phraseItEl = $("phraseIt"), phraseEnEl = $("phraseEn"),
+        dotsEl = $("repeatDots"), playBtn = $("playBtn"),
+        listEl = $("listEl");
+
+  function repeatTarget() { return parseInt($("repeatSel").value, 10); }
+  function rate() { return parseFloat($("rateSel").value); }
+
+  // ---- ElevenLabs (premium, cached) ----
+  const ELKEY_KEY = "frasi-elkey";
+  // No key is bundled (this file is public). Paste your own ElevenLabs key in
+  // the app — it's stored only in this device's browser.
+  let elKey = localStorage.getItem(ELKEY_KEY) || "";
+  function elName(choice) {
+    const v = elVoices.find(v => v.id === choice.slice(3));
+    return v ? v.name : "ElevenLabs";
+  }
+  async function loadElVoices(showErrors) {
+    if (!elKey) return;
+    try {
+      const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": elKey } });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const j = await r.json();
+      elVoices = (j.voices || []).map(v => ({ id: v.voice_id, name: v.name }));
+      $("elStatus").innerHTML = "✓ Connected — " + elVoices.length +
+        " premium voices added to the Voice menu above. Try <b>Sarah</b> or <b>Charlotte</b>.";
+      buildVoiceOptions();
+    } catch (e) {
+      if (showErrors) $("elStatus").textContent = "⚠️ Couldn't connect (" + e.message + "). Check the key and try again.";
+    }
+  }
+  $("elSaveBtn").onclick = () => {
+    const k = $("elKeyInput").value.trim();
+    if (!k) { $("elKeyInput").focus(); return; }
+    elKey = k;
+    try { localStorage.setItem(ELKEY_KEY, k); } catch (e) {}
+    $("elStatus").textContent = "Connecting…";
+    loadElVoices(true);
+  };
+  if (elKey) { $("elKeyInput").value = elKey; loadElVoices(false); }
+
+  // audio cache (IndexedDB) — each phrase is generated once, replays are free
+  let _db = null;
+  function idb() {
+    return new Promise((res, rej) => {
+      if (_db) return res(_db);
+      const r = indexedDB.open("frasi-audio", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("clips");
+      r.onsuccess = () => { _db = r.result; res(_db); };
+      r.onerror = () => rej(r.error);
+    });
+  }
+  async function cacheGet(key) {
+    try {
+      const d = await idb();
+      return await new Promise(res => {
+        const t = d.transaction("clips").objectStore("clips").get(key);
+        t.onsuccess = () => res(t.result || null);
+        t.onerror = () => res(null);
+      });
+    } catch (e) { return null; }
+  }
+  async function cachePut(key, blob) {
+    try {
+      const d = await idb();
+      d.transaction("clips", "readwrite").objectStore("clips").put(blob, key);
+    } catch (e) {}
+  }
+
+  // shared audio element (primed on user tap so iOS allows playback)
+  const audioEl = new Audio();
+  audioEl.preservesPitch = true;
+  if ("webkitPreservesPitch" in audioEl) audioEl.webkitPreservesPitch = true;
+  const SILENT_WAV = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+  function unlockAudio() {
+    try { audioEl.src = SILENT_WAV; audioEl.play().catch(() => {}); } catch (e) {}
+  }
+
+  async function speakEL(text, onDone, myToken) {
+    const vid = voiceChoice.slice(3);
+    const key = "el|" + vid + "|" + text;
+    let blob = await cacheGet(key);
+    if (!blob) {
+      const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + vid, {
+        method: "POST",
+        headers: { "xi-api-key": elKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text, model_id: "eleven_multilingual_v2" })
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      blob = await r.blob();
+      cachePut(key, blob);
+    }
+    if (myToken !== utterCounter) return;
+    const url = URL.createObjectURL(blob);
+    audioEl.onended = () => {
+      URL.revokeObjectURL(url);
+      if (myToken === utterCounter && isPlaying) onDone();
+    };
+    audioEl.src = url;
+    audioEl.playbackRate = rate();
+    await audioEl.play();
+  }
+
+  // ---- Playback engine ----
+  function speak(text, lang, onDone) {
+    const myToken = ++utterCounter;
+    const isIt = lang.startsWith("it");
+    if (isIt && elKey && voiceChoice.startsWith("el:")) {
+      engineStatusEl.textContent = "Voice: " + elName(voiceChoice) + " (ElevenLabs)";
+      speakEL(text, onDone, myToken).catch(err => {
+        if (myToken !== utterCounter) return;
+        engineStatusEl.textContent = "ElevenLabs error: " + err.message + " — using device voice";
+        speakDevice(text, lang, onDone, myToken);
+      });
+      return;
+    }
+    speakDevice(text, lang, onDone, myToken);
+  }
+
+  function speakDevice(text, lang, onDone, myToken) {
+    const u = new SpeechSynthesisUtterance(text);
+    const isIt = lang.startsWith("it");
+    const voice = isIt ? chosenVoice() : liveEnVoice();
+    if (voice) {
+      u.voice = voice;
+      u.lang = voice.lang;   // must match the voice exactly or iOS ignores it
+    } else {
+      u.lang = isIt ? "it-IT" : "en-US";
+    }
+    if (isIt) engineStatusEl.textContent = "Voice: " + (voice ? voice.name : "system default");
+    u.rate = rate();
+    u.onend = () => { if (myToken === utterCounter && isPlaying) onDone(); };
+    u.onerror = (e) => {
+      if (myToken === utterCounter && isPlaying && e.error !== "canceled" && e.error !== "interrupted") onDone();
+    };
+    speechSynthesis.speak(u);
+  }
+
+  function stopAudio() {
+    utterCounter++;            // invalidate pending callbacks
+    clearTimeout(timer);
+    audioEl.onended = null;
+    audioEl.pause();
+    speechSynthesis.cancel();
+  }
+
+  function showCurrent() {
+    const list = activeList();
+    if (!list.length) {
+      phraseItEl.textContent = "No phrases on rotation — add or restore some below.";
+      phraseEnEl.innerHTML = "&nbsp;";
+      $("breakdown").style.display = "none";
+      dotsEl.innerHTML = "";
+      $("playCount").textContent = "";
+      return;
+    }
+    if (currentIdx >= list.length) currentIdx = 0;
+    const p = list[currentIdx];
+    phraseItEl.textContent = p.it;
+    phraseEnEl.textContent = p.en;
+    phraseEnEl.classList.add("hidden-text");
+    renderBreakdown(p);
+    renderDots();
+    updateCountDisplay();
+    renderList(); // highlight playing row
+  }
+
+  function updateCountDisplay() {
+    const list = activeList();
+    const el = $("playCount");
+    if (!list.length || currentIdx >= list.length) { el.textContent = ""; return; }
+    const p = list[currentIdx];
+    const c = getCount(p.it);
+    el.textContent = "🎧 Heard " + c + (c === 1 ? " time" : " times")
+      + "  ·  " + (p.group || DEFAULT_GROUP);
+  }
+
+  // ---- Group selectors ----
+  function buildGroupOptions() {
+    const names = groupNames();
+    const gs = $("groupSel");
+    gs.innerHTML = '<option value="__all">All groups</option>';
+    names.forEach(n => {
+      const o = document.createElement("option");
+      o.value = n; o.textContent = n;
+      gs.appendChild(o);
+    });
+    if (![ "__all", ...names ].includes(groupChoice)) groupChoice = "__all";
+    gs.value = groupChoice;
+
+    const ng = $("newGroup");
+    const prev = ng.value;
+    ng.innerHTML = "";
+    names.forEach(n => {
+      const o = document.createElement("option");
+      o.value = n; o.textContent = n;
+      ng.appendChild(o);
+    });
+    const addNew = document.createElement("option");
+    addNew.value = "__new"; addNew.textContent = "+ New group…";
+    ng.appendChild(addNew);
+    ng.value = names.includes(prev) ? prev : (groupChoice !== "__all" && names.includes(groupChoice) ? groupChoice : names[0]);
+  }
+
+  function renderBreakdown(p) {
+    const el = $("breakdown");
+    const b = BREAKDOWNS[p.it];
+    if (!b) {
+      // no curated breakdown (e.g. a user-added phrase)
+      el.style.display = "block";
+      el.innerHTML = '<div class="breakdown-empty">No word-by-word breakdown yet for this phrase.</div>';
+      return;
+    }
+    el.style.display = "block";
+    const chips = b.words.map(w =>
+      '<span class="word-chip"><span class="w-it"></span><span class="w-gloss"></span></span>'
+    ).join("");
+    el.innerHTML = '<div class="breakdown-words">' + chips + '</div>' +
+                   (b.note ? '<div class="grammar-note">' + b.note + '</div>' : '');
+    // set text via textContent to keep Italian/glosses safe from HTML injection
+    const chipEls = el.querySelectorAll(".word-chip");
+    b.words.forEach((w, i) => {
+      chipEls[i].querySelector(".w-it").textContent = w[0];
+      chipEls[i].querySelector(".w-gloss").textContent = w[1];
+    });
+  }
+
+  function renderDots() {
+    const n = repeatTarget();
+    dotsEl.innerHTML = "";
+    for (let i = 1; i <= n; i++) {
+      const d = document.createElement("span");
+      d.className = "dot" + (i < repeatNum ? " done" : i === repeatNum ? " now" : "");
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function playCycle() {
+    const list = activeList();
+    if (!list.length) { setPlaying(false); showCurrent(); return; }
+    if (currentIdx >= list.length) currentIdx = 0;
+    const p = list[currentIdx];
+    repeatNum++;
+    showCurrent();
+    phraseItEl.classList.add("speaking");
+
+    speak(p.it, "it", () => {
+      phraseItEl.classList.remove("speaking");
+      if (repeatNum < repeatTarget()) {
+        timer = setTimeout(playCycle, 900);          // pause between repeats
+      } else {
+        afterRepeats(p);
+      }
+    });
+  }
+
+  function afterRepeats(p) {
+    registerListen(p);                 // one full cycle = one listen
+    const show = $("transToggle").checked;
+    const sayIt = $("speakTransToggle").checked;
+    if (show) phraseEnEl.classList.remove("hidden-text");
+    const advance = () => { timer = setTimeout(nextPhrase, 1400); };
+    if (sayIt) {
+      timer = setTimeout(() => speak(p.en, "en", advance), 500);
+    } else {
+      advance();
+    }
+  }
+
+  // Smart pick: the least-heard phrase in the current list; ties go to the
+  // one played least recently. When all counts are equal this becomes an even
+  // round-robin (= equal rotation).
+  function pickNextSmart(list) {
+    let bestIdx = 0, bestCount = Infinity, bestSeq = Infinity;
+    list.forEach((p, i) => {
+      const c = getCount(p.it);
+      const s = lastSeq[p.it] || 0;
+      if (c < bestCount || (c === bestCount && s < bestSeq)) {
+        bestIdx = i; bestCount = c; bestSeq = s;
+      }
+    });
+    return bestIdx;
+  }
+  function smartOn() { return $("smartToggle").checked; }
+
+  function nextPhrase() {
+    if (!isPlaying) return;
+    repeatNum = 0;
+    const list = activeList();
+    if (!list.length) { setPlaying(false); showCurrent(); return; }
+    currentIdx = smartOn() ? pickNextSmart(list) : (currentIdx + 1) % list.length;
+    playCycle();
+  }
+
+  function setPlaying(on) {
+    isPlaying = on;
+    playBtn.textContent = on ? "⏸" : "▶";
+    if (!on) {
+      stopAudio();
+      phraseItEl.classList.remove("speaking");
+    }
+  }
+
+  function startFrom(idx) {
+    stopAudio();
+    unlockAudio();   // prime audio element inside the tap (iOS requirement)
+    currentIdx = idx;
+    repeatNum = 0;
+    setPlaying(true);
+    playCycle();
+  }
+
+  // ---- Transport controls ----
+  playBtn.onclick = () => {
+    if (isPlaying) { setPlaying(false); renderDots(); }
+    else {
+      const list = activeList();
+      startFrom(smartOn() && list.length ? pickNextSmart(list) : currentIdx);
+    }
+  };
+  $("smartToggle").onchange = () => {
+    try { localStorage.setItem("frasi-smart-v1", $("smartToggle").checked ? "1" : "0"); } catch (e) {}
+  };
+  $("groupSel").onchange = function () {
+    groupChoice = this.value;
+    try { localStorage.setItem(GROUP_KEY, groupChoice); } catch (e) {}
+    stopAudio();
+    setPlaying(false);
+    currentIdx = 0;
+    repeatNum = 0;
+    showCurrent();
+    renderList();
+  };
+  $("newGroup").onchange = function () {
+    if (this.value === "__new") {
+      const name = (prompt("New group name:") || "").trim();
+      if (name) {
+        // add a temporary option so it can be selected now; it becomes real
+        // once a phrase is added to it
+        const o = document.createElement("option");
+        o.value = name; o.textContent = name;
+        this.insertBefore(o, this.querySelector('option[value="__new"]'));
+        this.value = name;
+      } else {
+        this.value = this.options[0] ? this.options[0].value : "";
+      }
+    }
+  };
+  $("nextBtn").onclick = () => {
+    if (!activeList().length) return;
+    stopAudio();
+    repeatNum = 0;
+    currentIdx = (currentIdx + 1) % activeList().length;
+    if (isPlaying) playCycle(); else showCurrent();
+  };
+  $("prevBtn").onclick = () => {
+    if (!activeList().length) return;
+    stopAudio();
+    repeatNum = 0;
+    currentIdx = (currentIdx - 1 + activeList().length) % activeList().length;
+    if (isPlaying) playCycle(); else showCurrent();
+  };
+  $("repeatSel").onchange = renderDots;
+  $("transToggle").onchange = () => {
+    // reflect immediately if phrase already finished its repeats
+    if ($("transToggle").checked && repeatNum >= repeatTarget()) {
+      phraseEnEl.classList.remove("hidden-text");
+    } else if (!$("transToggle").checked) {
+      phraseEnEl.classList.add("hidden-text");
+    }
+  };
+
+  // ---- Add phrase ----
+  $("addBtn").onclick = addPhrase;
+  $("newEn").addEventListener("keydown", e => { if (e.key === "Enter") addPhrase(); });
+  $("newIt").addEventListener("keydown", e => { if (e.key === "Enter") $("newEn").focus(); });
+  function addPhrase() {
+    const it = $("newIt").value.trim();
+    const en = $("newEn").value.trim();
+    if (!it) { $("newIt").focus(); return; }
+    let group = $("newGroup").value;
+    if (!group || group === "__new") group = DEFAULT_GROUP;
+    const id = Math.max(0, ...phrases.map(p => p.id)) + 1;
+    phrases.push({ id, it, en: en || "(no translation)", archived: false, group });
+    save();
+    $("newIt").value = ""; $("newEn").value = "";
+    buildGroupOptions();
+    $("newGroup").value = group;
+    $("newIt").focus();
+    renderList();
+    if (activeList().length === 1) showCurrent();
+  }
+
+  // ---- Tabs & list ----
+  $("tabActive").onclick = () => switchTab("active");
+  $("tabArchived").onclick = () => switchTab("archived");
+  function switchTab(t) {
+    currentTab = t;
+    $("tabActive").classList.toggle("active", t === "active");
+    $("tabArchived").classList.toggle("active", t === "archived");
+    renderList();
+  }
+
+  function renderList() {
+    const showArchived = currentTab === "archived";
+    const items = phrases.filter(p => p.archived === showArchived);
+    $("countActive").textContent = activeList().length;
+    $("countArchived").textContent = phrases.filter(p => p.archived).length;
+
+    listEl.innerHTML = "";
+    if (!items.length) {
+      listEl.innerHTML = '<div class="empty">' +
+        (showArchived ? "Nothing archived." : "No phrases on rotation. Add one above or restore from the archive.") +
+        "</div>";
+      return;
+    }
+    const act = activeList();
+    const nowPlayingId = act.length && currentIdx < act.length ? act[currentIdx].id : null;
+
+    items.forEach(p => {
+      const row = document.createElement("div");
+      row.className = "item" + (!showArchived && p.id === nowPlayingId ? " playing-now" : "");
+      const txt = document.createElement("div");
+      txt.className = "txt";
+      txt.innerHTML = '<div class="it"></div><div class="en"></div>';
+      txt.querySelector(".it").textContent = p.it;
+      if (groupChoice === "__all") {
+        const badge = document.createElement("span");
+        badge.className = "group-badge";
+        badge.textContent = p.group || DEFAULT_GROUP;
+        txt.querySelector(".it").appendChild(badge);
+      }
+      txt.querySelector(".en").textContent = p.en;
+
+      const pill = document.createElement("span");
+      pill.className = "count-pill";
+      pill.innerHTML = "🎧 <b></b>";
+      pill.querySelector("b").textContent = getCount(p.it);
+      pill.title = "Times heard";
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      if (!showArchived) {
+        const playB = btn("▶", "Play this phrase", () => {
+          const idx = activeList().findIndex(x => x.id === p.id);
+          if (idx >= 0) startFrom(idx);
+        });
+        const archB = btn("📥", "Archive", () => { toggleArchive(p.id, true); });
+        actions.append(playB, archB);
+      } else {
+        const restB = btn("📤", "Restore to rotation", () => { toggleArchive(p.id, false); });
+        actions.append(restB);
+      }
+      const delB = btn("🗑", "Delete forever", () => {
+        if (confirm("Delete this phrase permanently?")) {
+          phrases = phrases.filter(x => x.id !== p.id);
+          save(); fixIndexAfterChange(); renderList();
+        }
+      });
+      delB.className = "del";
+      actions.append(delB);
+
+      row.append(txt, pill, actions);
+      listEl.appendChild(row);
+    });
+  }
+
+  function btn(label, title, fn) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.title = title;
+    b.onclick = fn;
+    return b;
+  }
+
+  function toggleArchive(id, archived) {
+    const p = phrases.find(x => x.id === id);
+    if (p) p.archived = archived;
+    save();
+    fixIndexAfterChange();
+    renderList();
+  }
+
+  function fixIndexAfterChange() {
+    const list = activeList();
+    if (!list.length) {
+      setPlaying(false);
+      currentIdx = 0;
+      showCurrent();
+      return;
+    }
+    if (currentIdx >= list.length) currentIdx = 0;
+    if (!isPlaying) showCurrent();
+  }
+
+  // ---- Init ----
+  (function restoreSettings() {
+    const s = localStorage.getItem("frasi-smart-v1");
+    if (s !== null) $("smartToggle").checked = s === "1";
+  })();
+  buildGroupOptions();
+  renderList();
+  showCurrent();
+  syncCounts();   // pull/merge listen counts from the server
+})();
+</script>
+</body>
+</html>
