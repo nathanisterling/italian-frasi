@@ -474,11 +474,11 @@
   <div class="add-box">
     <h2>🎙 Premium voice — ElevenLabs <span style="font-weight:400;color:var(--muted);font-size:0.8rem">(optional, most authentic)</span></h2>
     <div class="add-row">
-      <input id="elKeyInput" type="password" placeholder="Paste your ElevenLabs API key" autocomplete="off">
+      <input id="elKeyInput" type="password" placeholder="Use your own ElevenLabs key (optional)" autocomplete="off">
       <button id="elSaveBtn">Connect</button>
     </div>
     <div id="elStatus" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">
-      Free at <b>elevenlabs.io</b>: sign up → click your profile (bottom-left) → API Keys → Create. Your key is stored only on this device. Each phrase is generated once, then cached — the free tier covers hundreds of phrases.
+      Premium voices are already enabled — just pick one from the Voice menu above. Each phrase is generated once, then cached. To use your own ElevenLabs key instead, paste it here (stored only on this device).
     </div>
   </div>
 
@@ -1163,9 +1163,12 @@
 
   // ---- ElevenLabs (premium, cached) ----
   const ELKEY_KEY = "frasi-elkey";
-  // No key is bundled (this file is public). Paste your own ElevenLabs key in
-  // the app — it's stored only in this device's browser.
-  let elKey = localStorage.getItem(ELKEY_KEY) || "";
+  // A key is bundled below so premium voices work out of the box.
+  // NOTE: this file is public, so the bundled key is visible to anyone — keep it
+  // restricted/rotatable. A key the user pastes in (stored only on their device)
+  // overrides the bundled one.
+  const EMBEDDED_EL_KEY = "9942e9fdaf19a2abe1fd2021501775ea0d1d83f84d0008c5d2aca2906bd680fb";
+  let elKey = localStorage.getItem(ELKEY_KEY) || EMBEDDED_EL_KEY;
   function elName(choice) {
     const v = elVoices.find(v => v.id === choice.slice(3));
     return v ? v.name : "ElevenLabs";
@@ -1192,7 +1195,9 @@
     $("elStatus").textContent = "Connecting…";
     loadElVoices(true);
   };
-  if (elKey) { $("elKeyInput").value = elKey; loadElVoices(false); }
+  const _storedElKey = localStorage.getItem(ELKEY_KEY) || "";
+  if (_storedElKey) $("elKeyInput").value = _storedElKey;  // only show a user-pasted key, not the bundled one
+  if (elKey) loadElVoices(false);                          // auto-connect (bundled or user key)
 
   // audio cache (IndexedDB) — each phrase is generated once, replays are free
   let _db = null;
