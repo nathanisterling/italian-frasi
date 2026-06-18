@@ -164,6 +164,35 @@
   }
   .transport .play-btn:hover { background: var(--green-hover); }
 
+  /* ---- Group-of-10 navigator ---- */
+  .block-nav {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+  }
+  .block-nav button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .block-nav button:hover { background: var(--surface-hover); }
+  .block-nav button:active { transform: scale(0.93); }
+  .block-nav #blockLabel {
+    min-width: 168px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ---- Settings row ---- */
   .settings {
     display: flex;
@@ -376,10 +405,22 @@
       <button id="playBtn" class="play-btn" title="Play / Pause">▶</button>
       <button id="nextBtn" title="Next phrase">⏭</button>
     </div>
+    <div class="block-nav" id="blockNav" style="display:none;">
+      <button id="prevBlockBtn" title="Previous group of 10">◀</button>
+      <span id="blockLabel">Phrases 1–10</span>
+      <button id="nextBlockBtn" title="Next group of 10">▶</button>
+    </div>
     <div class="settings">
       <div class="setting">
         <label for="groupSel">Group</label>
         <select id="groupSel"><option value="__all">All groups</option></select>
+      </div>
+      <div class="setting">
+        <label for="tenToggle">Loop in groups of 10</label>
+        <label class="switch">
+          <input type="checkbox" id="tenToggle">
+          <span class="slider-t"></span>
+        </label>
       </div>
       <div class="setting">
         <label for="smartToggle">Smart rotation</label>
@@ -900,6 +941,7 @@
   let phrases = load();
   save(); // persist any newly merged phrases
   let currentIdx = 0;          // index within active list
+  let blockStart = 0;          // start index of the active block of 10 (when "Loop in 10s" is on)
   let repeatNum = 0;           // which repeat we're on (1-based)
   let isPlaying = false;
   let currentTab = "active";
@@ -1265,6 +1307,7 @@
       $("breakdown").style.display = "none";
       dotsEl.innerHTML = "";
       $("playCount").textContent = "";
+      updateBlockNav();
       return;
     }
     if (currentIdx >= list.length) currentIdx = 0;
@@ -1275,6 +1318,7 @@
     renderBreakdown(p);
     renderDots();
     updateCountDisplay();
+    updateBlockNav();
     renderList(); // highlight playing row
   }
 
@@ -1383,25 +1427,75 @@
   // Smart pick: the least-heard phrase in the current list; ties go to the
   // one played least recently. When all counts are equal this becomes an even
   // round-robin (= equal rotation).
-  function pickNextSmart(list) {
-    let bestIdx = 0, bestCount = Infinity, bestSeq = Infinity;
-    list.forEach((p, i) => {
+  function pickNextSmart(list, lo, hi) {
+    lo = lo || 0;
+    if (hi == null) hi = list.length;
+    let bestIdx = lo, bestCount = Infinity, bestSeq = Infinity;
+    for (let i = lo; i < hi; i++) {
+      const p = list[i];
       const c = getCount(p.it);
       const s = lastSeq[p.it] || 0;
       if (c < bestCount || (c === bestCount && s < bestSeq)) {
         bestIdx = i; bestCount = c; bestSeq = s;
       }
-    });
+    }
     return bestIdx;
   }
   function smartOn() { return $("smartToggle").checked; }
+
+  // ---- "Loop in groups of 10" ----
+  function tenOn() { return $("tenToggle").checked; }
+  // Bounds [lo, hi) of the active block within the current list. When the
+  // toggle is off, this is the whole list, so all looping behaves as before.
+  // Also clamps blockStart so it stays valid if the list shrinks.
+  function blockBounds() {
+    const total = activeList().length;
+    if (!total) { blockStart = 0; return [0, 0]; }
+    if (!tenOn()) return [0, total];
+    let start = Math.floor(blockStart / 10) * 10;
+    if (start >= total) start = Math.floor((total - 1) / 10) * 10;
+    if (start < 0) start = 0;
+    blockStart = start;
+    return [start, Math.min(start + 10, total)];
+  }
+  function updateBlockNav() {
+    const nav = $("blockNav");
+    if (!tenOn()) { nav.style.display = "none"; return; }
+    const total = activeList().length;
+    nav.style.display = total ? "flex" : "none";
+    if (!total) return;
+    const [lo, hi] = blockBounds();
+    const nBlocks = Math.ceil(total / 10);
+    const cur = Math.floor(lo / 10) + 1;
+    $("blockLabel").textContent =
+      "Phrases " + (lo + 1) + "–" + hi + "  ·  group " + cur + "/" + nBlocks;
+  }
+  function gotoBlock(dir) {
+    const total = activeList().length;
+    if (!total) return;
+    const nBlocks = Math.ceil(total / 10);
+    let cur = Math.floor(blockStart / 10);
+    cur = (cur + dir + nBlocks) % nBlocks;   // wrap around
+    blockStart = cur * 10;
+    stopAudio();
+    repeatNum = 0;
+    const [lo] = blockBounds();
+    currentIdx = lo;
+    if (isPlaying) playCycle(); else showCurrent();
+  }
 
   function nextPhrase() {
     if (!isPlaying) return;
     repeatNum = 0;
     const list = activeList();
     if (!list.length) { setPlaying(false); showCurrent(); return; }
-    currentIdx = smartOn() ? pickNextSmart(list) : (currentIdx + 1) % list.length;
+    const [lo, hi] = blockBounds();
+    if (smartOn()) {
+      currentIdx = pickNextSmart(list, lo, hi);
+    } else {
+      currentIdx = currentIdx + 1;
+      if (currentIdx >= hi) currentIdx = lo;
+    }
     playCycle();
   }
 
@@ -1417,6 +1511,7 @@
   function startFrom(idx) {
     stopAudio();
     unlockAudio();   // prime audio element inside the tap (iOS requirement)
+    if (tenOn()) blockStart = Math.floor(idx / 10) * 10;   // jump to the block holding this phrase
     currentIdx = idx;
     repeatNum = 0;
     setPlaying(true);
@@ -1428,18 +1523,30 @@
     if (isPlaying) { setPlaying(false); renderDots(); }
     else {
       const list = activeList();
-      startFrom(smartOn() && list.length ? pickNextSmart(list) : currentIdx);
+      const [lo, hi] = blockBounds();
+      let startIdx = currentIdx;
+      if (startIdx < lo || startIdx >= hi) startIdx = lo;   // keep start inside the active block
+      if (smartOn() && list.length) startIdx = pickNextSmart(list, lo, hi);
+      startFrom(startIdx);
     }
   };
   $("smartToggle").onchange = () => {
     try { localStorage.setItem("frasi-smart-v1", $("smartToggle").checked ? "1" : "0"); } catch (e) {}
   };
+  $("tenToggle").onchange = () => {
+    try { localStorage.setItem("frasi-ten-v1", $("tenToggle").checked ? "1" : "0"); } catch (e) {}
+    if ($("tenToggle").checked) blockStart = Math.floor(currentIdx / 10) * 10;
+    showCurrent();
+  };
+  $("nextBlockBtn").onclick = () => gotoBlock(1);
+  $("prevBlockBtn").onclick = () => gotoBlock(-1);
   $("groupSel").onchange = function () {
     groupChoice = this.value;
     try { localStorage.setItem(GROUP_KEY, groupChoice); } catch (e) {}
     stopAudio();
     setPlaying(false);
     currentIdx = 0;
+    blockStart = 0;
     repeatNum = 0;
     showCurrent();
     renderList();
@@ -1463,14 +1570,18 @@
     if (!activeList().length) return;
     stopAudio();
     repeatNum = 0;
-    currentIdx = (currentIdx + 1) % activeList().length;
+    const [lo, hi] = blockBounds();
+    if (currentIdx < lo || currentIdx >= hi) currentIdx = lo;
+    else { currentIdx = currentIdx + 1; if (currentIdx >= hi) currentIdx = lo; }
     if (isPlaying) playCycle(); else showCurrent();
   };
   $("prevBtn").onclick = () => {
     if (!activeList().length) return;
     stopAudio();
     repeatNum = 0;
-    currentIdx = (currentIdx - 1 + activeList().length) % activeList().length;
+    const [lo, hi] = blockBounds();
+    if (currentIdx < lo || currentIdx >= hi) currentIdx = hi - 1;
+    else { currentIdx = currentIdx - 1; if (currentIdx < lo) currentIdx = hi - 1; }
     if (isPlaying) playCycle(); else showCurrent();
   };
   $("repeatSel").onchange = renderDots;
@@ -1611,6 +1722,8 @@
   (function restoreSettings() {
     const s = localStorage.getItem("frasi-smart-v1");
     if (s !== null) $("smartToggle").checked = s === "1";
+    const t = localStorage.getItem("frasi-ten-v1");
+    if (t !== null) $("tenToggle").checked = t === "1";
   })();
   buildGroupOptions();
   renderList();
