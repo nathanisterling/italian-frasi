@@ -103,6 +103,17 @@
   }
   .word-chip .w-it { font-weight: 650; font-size: 0.92rem; display: block; }
   .word-chip .w-gloss { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 1px; }
+  /* Subjunctive (congiuntivo) flag */
+  .word-chip.subj { border-color: #a371f7; background: rgba(163,113,247,0.12); }
+  .word-chip .w-tag {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a371f7;
+  }
   .grammar-note {
     margin-top: 13px;
     font-size: 0.86rem;
@@ -674,7 +685,7 @@
       note: "<b>venire a trovare</b> = 'to visit (a person)'; the pronoun <b>ti</b> attaches to <i>venire</i>. After <b>quando</b> referring to the future, Italian uses the real future <b>sarò</b> (not the present). <b>Mi piacerebbe</b> is the conditional of <i>piacere</i> for politeness."
     },
     "Non riesco a capire perché abbiano preso questa decisione senza consultarci.": {
-      words: [["Non riesco a","I can't manage to"],["capire","understand"],["perché","why"],["abbiano preso","they took"],["questa decisione","this decision"],["senza","without"],["consultarci","consulting us"]],
+      words: [["Non riesco a","I can't manage to"],["capire","understand"],["perché","why"],["abbiano preso","they took","subj"],["questa decisione","this decision"],["senza","without"],["consultarci","consulting us"]],
       note: "<b>riuscire a + infinitive</b> = 'to manage to'. The <b>subjunctive</b> <b>abbiano preso</b> is triggered by the doubt/feeling in 'non riesco a capire perché…'. <b>consultarci</b> = <i>consultare</i> + <b>ci</b> ('us')."
     },
     "Se mi organizzo bene, riesco a finire il lavoro prima della scadenza.": {
@@ -722,7 +733,7 @@
       note: "<b>sembrare</b> behaves like <i>piacere</i>: <b>mi sembra</b> = 'it seems to me'. <b>tutto sommato</b> is a fixed phrase = 'all in all'."
     },
     "Non è detto che funzioni.": {
-      words: [["Non è detto che","it's not certain that"],["funzioni","it works"]],
+      words: [["Non è detto che","it's not certain that"],["funzioni","it works","subj"]],
       note: "<b>Non è detto che</b> ('it's not a given that') expresses doubt, so it triggers the <b>subjunctive</b>: <i>funziona</i> → <b>funzioni</b>."
     },
     "Vedila così: potrebbe anche essere un'opportunità.": {
@@ -736,7 +747,7 @@
 
     // ---- B2 breakdowns ----
     "Avrei agito diversamente se lo avessi saputo prima.": {
-      words: [["Avrei agito","I would have acted"],["diversamente","differently"],["se","if"],["lo","it"],["avessi saputo","I had known"],["prima","earlier"]],
+      words: [["Avrei agito","I would have acted"],["diversamente","differently"],["se","if"],["lo","it"],["avessi saputo","I had known","subj"],["prima","earlier"]],
       note: "Classic <b>third conditional</b> (impossible past): <i>se</i> + <b>congiuntivo trapassato</b> (<b>avessi saputo</b>) in the if-clause, <b>condizionale passato</b> (<b>avrei agito</b>) in the result."
     },
     "Non avrei preso quella decisione in altre condizioni.": {
@@ -748,7 +759,7 @@
       note: "<b>avrei potuto + infinitive</b> = 'could have (done)'. The modal <i>potere</i> carries the <b>condizionale passato</b>; the main verb stays in the infinitive (<b>evitare</b>)."
     },
     "Avrei potuto scegliere un'altra opzione se fosse stata disponibile.": {
-      words: [["Avrei potuto","I could have"],["scegliere","choose"],["un'altra opzione","another option"],["se","if"],["fosse stata","it had been"],["disponibile","available"]],
+      words: [["Avrei potuto","I could have"],["scegliere","choose"],["un'altra opzione","another option"],["se","if"],["fosse stata","it had been","subj"],["disponibile","available"]],
       note: "<b>fosse stata</b> is the <b>congiuntivo trapassato</b> of <i>essere</i>; with a feminine subject (<i>opzione</i>) the participle agrees → <b>stata</b>. It pairs with <b>avrei potuto</b> in a third-conditional structure."
     },
     "Lo farei ancora allo stesso modo oggi.": {
@@ -756,19 +767,19 @@
       note: "<b>farei</b> is the <b>condizionale presente</b> of <i>fare</i>. <b>allo stesso modo</b> = <i>a + lo</i> stesso modo = 'in the same way'."
     },
     "Cambierei il mio approccio se la situazione lo richiedesse.": {
-      words: [["Cambierei","I would change"],["il mio approccio","my approach"],["se","if"],["la situazione","the situation"],["lo","it"],["richiedesse","required"]],
+      words: [["Cambierei","I would change"],["il mio approccio","my approach"],["se","if"],["la situazione","the situation"],["lo","it"],["richiedesse","required","subj"]],
       note: "<b>Second conditional</b> (hypothetical present): <i>se</i> + <b>congiuntivo imperfetto</b> (<b>richiedesse</b>) + <b>condizionale presente</b> (<b>cambierei</b>)."
     },
     "Riconsidererei la cosa se apparissero nuove informazioni.": {
-      words: [["Riconsidererei","I would reconsider"],["la cosa","the matter"],["se","if"],["apparissero","appeared"],["nuove informazioni","new information"]],
+      words: [["Riconsidererei","I would reconsider"],["la cosa","the matter"],["se","if"],["apparissero","appeared","subj"],["nuove informazioni","new information"]],
       note: "<b>apparissero</b> is the <b>congiuntivo imperfetto</b> of <i>apparire</i> (3rd plural). Note <i>informazioni</i> is <b>plural</b> in Italian and takes a plural verb."
     },
     "Continuerei a meno che non accadesse qualcosa di grave.": {
-      words: [["Continuerei","I would continue"],["a meno che","unless"],["non","(not)"],["accadesse","happened"],["qualcosa di grave","something serious"]],
+      words: [["Continuerei","I would continue"],["a meno che","unless"],["non","(not)"],["accadesse","happened","subj"],["qualcosa di grave","something serious"]],
       note: "<b>a meno che</b> requires the <b>subjunctive</b> and a <b>pleonastic 'non'</b> that is not translated. <b>qualcosa di + adjective</b> = 'something (serious)'."
     },
     "Mi fermerei se i rischi diventassero troppo elevati.": {
-      words: [["Mi fermerei","I would stop"],["se","if"],["i rischi","the risks"],["diventassero","became"],["troppo elevati","too high"]],
+      words: [["Mi fermerei","I would stop"],["se","if"],["i rischi","the risks"],["diventassero","became","subj"],["troppo elevati","too high"]],
       note: "<b>fermarsi</b> is reflexive → <b>mi fermerei</b> (conditional). <b>diventassero</b> is <b>congiuntivo imperfetto</b>; <b>elevati</b> agrees with masc. plural <i>rischi</i>."
     },
     "Procederei con cautela in quel caso.": {
@@ -896,19 +907,19 @@
       note: "Adjectives in <i>-co</i> build their adverb on the <b>feminine</b> form: <i>sistematico → sistematica</i> + <b>-mente</b> = <b>sistematicamente</b>."
     },
     "Se avessi studiato di più all'università, ora avrei un lavoro migliore.": {
-      words: [["Se","if"],["avessi studiato","I had studied"],["di più","harder"],["all'università","at university"],["ora","now"],["avrei","I would have"],["un lavoro migliore","a better job"]],
+      words: [["Se","if"],["avessi studiato","I had studied","subj"],["di più","harder"],["all'università","at university"],["ora","now"],["avrei","I would have"],["un lavoro migliore","a better job"]],
       note: "A <b>mixed conditional</b>: a past <i>se</i>-clause (<b>congiuntivo trapassato</b> <b>avessi studiato</b>) with a present result (<b>condizionale presente</b> <b>avrei</b>) — the past affects the present 'now'. <b>all'</b> = <i>a + l'</i>."
     },
     "Se non avesse perso il volo, oggi sarebbe qui con noi.": {
-      words: [["Se","if"],["non avesse perso","she hadn't missed"],["il volo","the flight"],["oggi","today"],["sarebbe","she would be"],["qui con noi","here with us"]],
+      words: [["Se","if"],["non avesse perso","she hadn't missed","subj"],["il volo","the flight"],["oggi","today"],["sarebbe","she would be"],["qui con noi","here with us"]],
       note: "Another <b>mixed conditional</b>: <b>congiuntivo trapassato</b> (<b>avesse perso</b>) + present <b>condizionale</b> (<b>sarebbe</b>). <b>perdere</b> here = 'to miss (a flight)'."
     },
     "Sarei molto più ricco ora se non avessi speso tutti i miei soldi in viaggi.": {
-      words: [["Sarei","I would be"],["molto più ricco","much richer"],["ora","now"],["se","if"],["non avessi speso","I hadn't spent"],["tutti i miei soldi","all my money"],["in viaggi","on travel"]],
+      words: [["Sarei","I would be"],["molto più ricco","much richer"],["ora","now"],["se","if"],["non avessi speso","I hadn't spent","subj"],["tutti i miei soldi","all my money"],["in viaggi","on travel"]],
       note: "A result-first <b>mixed conditional</b>. <b>molto più</b> = 'much more'. <b>soldi</b> ('money') is grammatically <b>plural</b> in Italian. <b>spendere</b> → irregular participle <b>speso</b>."
     },
     "Se avessi ascoltato il mio consiglio, non saresti in questo guaio.": {
-      words: [["Se","if"],["avessi ascoltato","you had listened to"],["il mio consiglio","my advice"],["non saresti","you wouldn't be"],["in questo guaio","in this trouble"]],
+      words: [["Se","if"],["avessi ascoltato","you had listened to","subj"],["il mio consiglio","my advice"],["non saresti","you wouldn't be"],["in questo guaio","in this trouble"]],
       note: "<b>ascoltare</b> takes a direct object (no 'to'). Mixed conditional again: <b>congiuntivo trapassato</b> + <b>condizionale presente</b>. <b>guaio</b> = 'trouble / mess'."
     },
     "Ciò che mi preoccupa di più è la mancanza di comunicazione all'interno del team.": {
@@ -1374,9 +1385,13 @@
       return;
     }
     el.style.display = "block";
-    const chips = b.words.map(w =>
-      '<span class="word-chip"><span class="w-it"></span><span class="w-gloss"></span></span>'
-    ).join("");
+    const chips = b.words.map(w => {
+      const isSubj = w[2] === "subj";
+      return '<span class="word-chip' + (isSubj ? ' subj' : '') + '">' +
+               '<span class="w-it"></span><span class="w-gloss"></span>' +
+               (isSubj ? '<span class="w-tag">congiuntivo</span>' : '') +
+             '</span>';
+    }).join("");
     el.innerHTML = '<div class="breakdown-words">' + chips + '</div>' +
                    (b.note ? '<div class="grammar-note">' + b.note + '</div>' : '');
     // set text via textContent to keep Italian/glosses safe from HTML injection
