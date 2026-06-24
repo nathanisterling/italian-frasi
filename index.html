@@ -394,6 +394,35 @@
     color: var(--ink);
     cursor: pointer;
   }
+  /* Prominent quota / premium-voice error banner */
+  #elBanner {
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(229, 57, 53, 0.14);
+    border: 1px solid var(--it-red, #e53935);
+    border-left: 4px solid var(--it-red, #e53935);
+    color: var(--text, #f2f2f2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  #elBanner.show { display: flex; }
+  #elBanner .el-banner-icon { font-size: 1.1rem; line-height: 1.3; }
+  #elBanner .el-banner-body { flex: 1; }
+  #elBanner b { color: var(--it-red, #e53935); }
+  #elBanner .el-banner-close {
+    background: none;
+    border: none;
+    color: var(--muted, #9aa);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+  }
+  #elBanner .el-banner-close:hover { color: var(--text, #fff); }
 </style>
 </head>
 <body>
@@ -403,6 +432,13 @@
 </header>
 
 <div class="container">
+
+  <!-- Premium-voice / quota error banner (shown when ElevenLabs TTS fails) -->
+  <div id="elBanner" role="alert">
+    <span class="el-banner-icon">⚠️</span>
+    <div class="el-banner-body" id="elBannerBody"></div>
+    <button class="el-banner-close" id="elBannerClose" title="Dismiss" aria-label="Dismiss">×</button>
+  </div>
 
   <!-- Player -->
   <div class="player">
@@ -1325,6 +1361,27 @@
     }
   }
 
+  // ---- Premium-voice / quota error banner ----
+  let _elBannerDismissed = false;
+  function showElBanner(isQuota) {
+    if (_elBannerDismissed) return;
+    const body = $("elBannerBody");
+    if (isQuota) {
+      body.innerHTML = "<b>Premium voice unavailable — ElevenLabs quota exhausted.</b> " +
+        "The built-in ElevenLabs key has run out of credits, so premium (Sarah) audio can't be " +
+        "generated right now. Playback has fallen back to your device's Italian voice. Paste your " +
+        "own ElevenLabs key below for premium audio, or try again once the monthly free quota resets.";
+    } else {
+      body.innerHTML = "<b>Premium voice unavailable.</b> The ElevenLabs request failed, so playback " +
+        "has fallen back to your device's Italian voice. Paste your own ElevenLabs key below to retry premium audio.";
+    }
+    $("elBanner").classList.add("show");
+  }
+  $("elBannerClose").onclick = () => {
+    _elBannerDismissed = true;
+    $("elBanner").classList.remove("show");
+  };
+
   // ---- Playback engine ----
   function speak(text, lang, onDone) {
     const myToken = ++utterCounter;
@@ -1337,12 +1394,13 @@
           // bad key or out of quota: disable premium for this session and fall
           // back quietly to the device voice (avoids a failed call per phrase)
           elDisabled = true;
-          const why = err.reason === "quota_exceeded" ? "premium quota used up"
-                    : (err.reason || "unavailable");
+          const quota = err.reason === "quota_exceeded";
+          const why = quota ? "premium quota used up" : (err.reason || "unavailable");
           engineStatusEl.textContent = "Premium voice " + why + " — using device voice";
           $("elStatus").innerHTML = "⚠️ The built-in premium voice is unavailable right now (" +
             why + "). The app is using your device's Italian voice. Paste your own ElevenLabs key " +
             "above for premium audio, or try again once the monthly free quota resets.";
+          showElBanner(quota);
         } else {
           engineStatusEl.textContent = "Premium voice hiccup — using device voice";
         }
