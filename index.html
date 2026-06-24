@@ -471,7 +471,7 @@
       <div class="setting">
         <label for="speakTransToggle">Speak translation</label>
         <label class="switch">
-          <input type="checkbox" id="speakTransToggle">
+          <input type="checkbox" id="speakTransToggle" checked>
           <span class="slider-t"></span>
         </label>
       </div>
@@ -1066,9 +1066,13 @@
   // ---- Voices ----
   const engineStatusEl = document.getElementById("engineStatus");
   const VOICE_KEY = "frasi-voice-v2";
-  let voiceChoice = localStorage.getItem(VOICE_KEY) || "auto";
+  const SARAH_ID = "EXAVITQu4vr4xnSDxMaL";       // standard ElevenLabs voice "Sarah"
+  const DEFAULT_VOICE = "el:" + SARAH_ID;         // new users default to premium Sarah
+  let voiceChoice = localStorage.getItem(VOICE_KEY) || DEFAULT_VOICE;
   let itVoice = null, enVoice = null;
   let elVoices = [];   // ElevenLabs voices, filled in after connect
+  let elDisabled = false;  // set true after an auth/quota failure so we stop hammering
+                           // the API and fall straight back to the device voice
 
   // rank: premium > enhanced > google/siri > rest; compact/eloquence last
   function quality(v) {
@@ -1109,10 +1113,24 @@
       sel.appendChild(o);
     });
     const vals = Array.from(sel.options).map(o => o.value);
-    sel.value = vals.includes(voiceChoice) ? voiceChoice
-              : (elVoices.length ? "el:" + elVoices[0].id : "auto");
-    if (sel.value !== voiceChoice) {
-      voiceChoice = sel.value;
+    if (vals.includes(voiceChoice)) {
+      sel.value = voiceChoice;                       // chosen voice is available — use it
+    } else if (voiceChoice.startsWith("el:")) {
+      if (elVoices.length) {
+        // premium voices ARE loaded but the chosen one isn't on this account →
+        // prefer Sarah, otherwise the first available premium voice
+        const fb = elVoices.some(v => v.id === SARAH_ID) ? DEFAULT_VOICE : "el:" + elVoices[0].id;
+        voiceChoice = fb;
+        sel.value = fb;
+        try { localStorage.setItem(VOICE_KEY, voiceChoice); } catch (e) {}
+      } else {
+        // premium voices not fetched yet — keep the premium choice intact (do NOT
+        // overwrite/persist), just show a provisional selection until they load
+        sel.value = vals.includes("auto") ? "auto" : (sel.options[0] && sel.options[0].value);
+      }
+    } else {
+      voiceChoice = "auto";
+      sel.value = "auto";
       try { localStorage.setItem(VOICE_KEY, voiceChoice); } catch (e) {}
     }
     updateEngineStatus();
@@ -1247,18 +1265,44 @@
     try { audioEl.src = SILENT_WAV; audioEl.play().catch(() => {}); } catch (e) {}
   }
 
+  // Fetch TTS audio with one retry on transient network errors. Classifies
+  // failures: auth/quota errors (401/403/429) are "permanent" for this session
+  // so the caller can disable EL and stop retrying on every phrase.
+  async function elFetchAudio(vid, text) {
+    const doFetch = () => fetch("https://api.elevenlabs.io/v1/text-to-speech/" + vid, {
+      method: "POST",
+      headers: { "xi-api-key": elKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text, model_id: "eleven_multilingual_v2" })
+    });
+    let r;
+    try {
+      r = await doFetch();
+    } catch (netErr) {
+      // transient network blip — retry once before giving up (not permanent)
+      try { r = await doFetch(); } catch (e2) { throw new Error("network"); }
+    }
+    if (!r.ok) {
+      let reason = "HTTP " + r.status;
+      try { const j = await r.json(); if (j && j.detail && j.detail.status) reason = j.detail.status; } catch (e) {}
+      const err = new Error(reason);
+      err.reason = reason;
+      if (r.status === 401 || r.status === 403 || r.status === 429) err.permanent = true;
+      throw err;
+    }
+    const blob = await r.blob();
+    // guard against a non-audio body (e.g. a JSON error served with 200)
+    if (!blob || blob.size < 200 || !/audio/i.test(blob.type || "")) {
+      const err = new Error("invalid audio"); err.reason = "invalid audio"; throw err;
+    }
+    return blob;
+  }
+
   async function speakEL(text, onDone, myToken) {
     const vid = voiceChoice.slice(3);
     const key = "el|" + vid + "|" + text;
-    let blob = await cacheGet(key);
+    let blob = await cacheGet(key);     // replays are free, even when quota is gone
     if (!blob) {
-      const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + vid, {
-        method: "POST",
-        headers: { "xi-api-key": elKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ text: text, model_id: "eleven_multilingual_v2" })
-      });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      blob = await r.blob();
+      blob = await elFetchAudio(vid, text);
       cachePut(key, blob);
     }
     if (myToken !== utterCounter) return;
@@ -1267,20 +1311,41 @@
       URL.revokeObjectURL(url);
       if (myToken === utterCounter && isPlaying) onDone();
     };
+    // if the audio element itself can't play the clip, fall back to the device voice
+    audioEl.onerror = () => {
+      URL.revokeObjectURL(url);
+      if (myToken === utterCounter && isPlaying) speakDevice(text, "it", onDone, myToken);
+    };
     audioEl.src = url;
     audioEl.playbackRate = rate();
-    await audioEl.play();
+    try {
+      await audioEl.play();
+    } catch (playErr) {
+      if (myToken === utterCounter && isPlaying) speakDevice(text, "it", onDone, myToken);
+    }
   }
 
   // ---- Playback engine ----
   function speak(text, lang, onDone) {
     const myToken = ++utterCounter;
     const isIt = lang.startsWith("it");
-    if (isIt && elKey && voiceChoice.startsWith("el:")) {
+    if (isIt && elKey && !elDisabled && voiceChoice.startsWith("el:")) {
       engineStatusEl.textContent = "Voice: " + elName(voiceChoice) + " (ElevenLabs)";
       speakEL(text, onDone, myToken).catch(err => {
         if (myToken !== utterCounter) return;
-        engineStatusEl.textContent = "ElevenLabs error: " + err.message + " — using device voice";
+        if (err && err.permanent) {
+          // bad key or out of quota: disable premium for this session and fall
+          // back quietly to the device voice (avoids a failed call per phrase)
+          elDisabled = true;
+          const why = err.reason === "quota_exceeded" ? "premium quota used up"
+                    : (err.reason || "unavailable");
+          engineStatusEl.textContent = "Premium voice " + why + " — using device voice";
+          $("elStatus").innerHTML = "⚠️ The built-in premium voice is unavailable right now (" +
+            why + "). The app is using your device's Italian voice. Paste your own ElevenLabs key " +
+            "above for premium audio, or try again once the monthly free quota resets.";
+        } else {
+          engineStatusEl.textContent = "Premium voice hiccup — using device voice";
+        }
         speakDevice(text, lang, onDone, myToken);
       });
       return;
@@ -1613,6 +1678,9 @@
       phraseEnEl.classList.add("hidden-text");
     }
   };
+  $("speakTransToggle").onchange = () => {
+    try { localStorage.setItem("frasi-speaktrans-v1", $("speakTransToggle").checked ? "1" : "0"); } catch (e) {}
+  };
 
   // ---- Add phrase ----
   $("addBtn").onclick = addPhrase;
@@ -1744,6 +1812,9 @@
     if (s !== null) $("smartToggle").checked = s === "1";
     const t = localStorage.getItem("frasi-ten-v1");
     if (t !== null) $("tenToggle").checked = t === "1";
+    // Speak translation defaults ON for new users; respect a saved preference if set
+    const sp = localStorage.getItem("frasi-speaktrans-v1");
+    $("speakTransToggle").checked = (sp === null) ? true : (sp === "1");
   })();
   buildGroupOptions();
   renderList();
