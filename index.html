@@ -1232,7 +1232,7 @@
   // NOTE: this file is public, so the bundled key is visible to anyone — keep it
   // restricted/rotatable. A key the user pastes in (stored only on their device)
   // overrides the bundled one.
-  const EMBEDDED_EL_KEY = "9942e9fdaf19a2abe1fd2021501775ea0d1d83f84d0008c5d2aca2906bd680fb";
+  const EMBEDDED_EL_KEY = "sk_8a5e4aec7c7d74066bf6c48148cca152a23b5aef5e2da2ad";
   let elKey = localStorage.getItem(ELKEY_KEY) || EMBEDDED_EL_KEY;
   function elName(choice) {
     const v = elVoices.find(v => v.id === choice.slice(3));
@@ -1423,10 +1423,24 @@
     }
     if (isIt) engineStatusEl.textContent = "Voice: " + (voice ? voice.name : "system default");
     u.rate = rate();
-    u.onend = () => { if (myToken === utterCounter && isPlaying) onDone(); };
-    u.onerror = (e) => {
-      if (myToken === utterCounter && isPlaying && e.error !== "canceled" && e.error !== "interrupted") onDone();
+
+    // The Web Speech API is flaky: on iOS Safari `onend` often never fires, and
+    // Chrome can fire `onerror` with "interrupted"/"canceled". Without a guard
+    // this stalls playback (e.g. when "Speak translation" speaks the English).
+    // So: fire onDone at most once, advance on any error, and add a watchdog
+    // timer so the session keeps moving even if no event ever arrives. A genuine
+    // user stop bumps utterCounter, so the token check still suppresses those.
+    let fired = false;
+    const finish = () => {
+      if (fired) return;
+      fired = true;
+      clearTimeout(watchdog);
+      if (myToken === utterCounter && isPlaying) onDone();
     };
+    const estSecs = (text.length / 8) / (u.rate || 1) + 3;
+    const watchdog = setTimeout(finish, estSecs * 1000);
+    u.onend = finish;
+    u.onerror = finish;
     speechSynthesis.speak(u);
   }
 
