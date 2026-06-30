@@ -1297,8 +1297,20 @@
   audioEl.preservesPitch = true;
   if ("webkitPreservesPitch" in audioEl) audioEl.webkitPreservesPitch = true;
   const SILENT_WAV = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+  let _speechPrimed = false;
   function unlockAudio() {
     try { audioEl.src = SILENT_WAV; audioEl.play().catch(() => {}); } catch (e) {}
+    // Chrome blocks speechSynthesis.speak() (error "not-allowed") unless it has
+    // been activated by a user gesture. The Italian line plays through the audio
+    // element, but the spoken English translation fires later from a timer — well
+    // after the tap — so it gets blocked. Speaking a silent utterance here, inside
+    // the Play tap, primes the engine so those later device-voice calls are allowed.
+    try {
+      const p = new SpeechSynthesisUtterance(" ");
+      p.volume = 0;
+      speechSynthesis.speak(p);
+      _speechPrimed = true;
+    } catch (e) {}
   }
 
   // Fetch TTS audio with one retry on transient network errors. Classifies
