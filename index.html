@@ -1572,12 +1572,25 @@
 
     speak(p.it, "it", () => {
       phraseItEl.classList.remove("speaking");
+      // After the 2nd reading, leave a longer gap (roughly the length of the
+      // phrase itself) so the learner has time to repeat it aloud before the
+      // next reading / translation. Other gaps stay short.
+      const gap = (repeatNum === 2) ? repeatGap(p.it) : 900;
       if (repeatNum < repeatTarget()) {
-        timer = setTimeout(playCycle, 900);          // pause between repeats
+        timer = setTimeout(playCycle, gap);          // pause between repeats
+      } else if (repeatNum === 2) {
+        timer = setTimeout(() => afterRepeats(p), gap);   // repeats=2: still leave repeat time
       } else {
         afterRepeats(p);
       }
     });
+  }
+
+  // Milliseconds roughly equal to speaking the phrase once — enough time for the
+  // learner to repeat it aloud. Scales with phrase length and playback speed.
+  function repeatGap(text) {
+    const secs = (text.length / 8) / (rate() || 1);
+    return Math.max(1800, Math.round(secs * 1000) + 400);
   }
 
   function afterRepeats(p) {
