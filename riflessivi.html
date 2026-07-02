@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#14161a">
+<title>Riflessivi — Istinto in 7 giorni</title>
+<style>
+:root{
+  --cream:#14161a; --ink:#e9e7e2; --muted:#9a958c;
+  --card:#1e2127; --surface:#262a31; --surface-hover:#2f343d; --border:#343a44;
+  --green:#3fb950; --green-hover:#4cc861; --red:#f0565d;
+  --gold:#e3b341; --blue:#6cb6ff; --purple:#bc8cff;
+  --shadow:0 4px 16px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0; background:var(--cream); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  min-height:100%; overscroll-behavior-y:none;}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+button{font-family:inherit; color:inherit; border:none; background:none; cursor:pointer; touch-action:manipulation; user-select:none; -webkit-user-select:none;}
+.wrap{max-width:540px; margin:0 auto; padding:0 14px 90px;}
+.screen{display:none; animation:fadein .18s ease;}
+.screen.on{display:block;}
+@keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky; top:0; z-index:50; background:linear-gradient(var(--cream) 82%,transparent);
+  display:flex; align-items:center; gap:10px; padding:12px 2px 10px; min-height:54px;}
+.backbtn{width:40px; height:40px; border-radius:12px; background:var(--card); border:1px solid var(--border);
+  font-size:18px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+.backbtn:active{background:var(--surface-hover);}
+.tbtitle{font-weight:800; font-size:17px; letter-spacing:.3px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.tbside{display:flex; gap:8px; align-items:center; font-weight:700; font-size:14px;}
+.streakchip{background:var(--card); border:1px solid var(--border); border-radius:99px; padding:6px 11px; font-size:13px; font-weight:800;}
+.streakchip.hot{border-color:var(--gold); color:var(--gold);}
+
+/* ---------- home ---------- */
+.hero{text-align:center; padding:16px 0 6px;}
+.hero h1{margin:0; font-size:34px; font-weight:900; letter-spacing:1px;}
+.hero h1 .tri{background:linear-gradient(90deg,#3fb950 33%,#e9e7e2 33% 66%,#f0565d 66%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero .tag{color:var(--muted); font-size:14px; margin-top:5px; font-weight:600;}
+.instinct{margin:16px 0 6px; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:16px; box-shadow:var(--shadow);}
+.instinct .row{display:flex; justify-content:space-between; align-items:baseline;}
+.instinct .lbl{font-size:12px; letter-spacing:1.4px; color:var(--muted); font-weight:800;}
+.instinct .num{font-size:30px; font-weight:900; font-variant-numeric:tabular-nums;}
+.instinct .num small{font-size:14px; color:var(--muted); font-weight:700;}
+.imeter{height:10px; background:var(--surface); border-radius:99px; margin-top:10px; overflow:hidden;}
+.imeter i{display:block; height:100%; width:0%; border-radius:99px;
+  background:linear-gradient(90deg,var(--red),var(--gold) 45%,var(--green)); transition:width .6s ease;}
+.instinct .sub{display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:8px; font-weight:600;}
+
+.quickrow{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin:14px 0 4px;}
+.qbtn{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:12px 4px 10px;
+  display:flex; flex-direction:column; align-items:center; gap:4px; box-shadow:var(--shadow);}
+.qbtn:active{background:var(--surface-hover); transform:scale(.97);}
+.qbtn .ic{font-size:23px;}
+.qbtn .t{font-size:11.5px; font-weight:800; color:var(--muted);}
+
+.sechead{display:flex; align-items:baseline; justify-content:space-between; margin:20px 2px 10px;}
+.sechead h2{margin:0; font-size:15px; letter-spacing:1.2px; color:var(--muted); font-weight:800;}
+.daycard{display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px 15px; margin-bottom:10px; box-shadow:var(--shadow);}
+.daycard:active{background:var(--surface-hover);}
+.daycard.reco{border-color:var(--green);}
+.daycard .ring{width:46px; height:46px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:16px; background:
+  conic-gradient(var(--green) calc(var(--p,0)*1%), var(--surface) 0); position:relative;}
+.daycard .ring::after{content:""; position:absolute; inset:4px; border-radius:50%; background:var(--card);}
+.daycard .ring span{position:relative; z-index:1;}
+.daycard .dtxt{flex:1; min-width:0;}
+.daycard .dt1{font-weight:800; font-size:16px;}
+.daycard .dt2{color:var(--muted); font-size:12.5px; margin-top:2px;}
+.daycard .flag{font-size:11px; font-weight:900; color:var(--green); border:1px solid var(--green); border-radius:99px; padding:3px 8px; flex:0 0 auto;}
+.daycard .done{color:var(--green); font-size:20px; flex:0 0 auto;}
+
+/* ---------- day intro ---------- */
+.dayhero{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:18px; margin-top:4px; box-shadow:var(--shadow);}
+.dayhero h2{margin:0 0 4px; font-size:22px; font-weight:900;}
+.dayhero .sub{color:var(--muted); font-size:14px; line-height:1.45;}
+.rulecard{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:15px 16px; margin-top:12px;}
+.rulecard h3{margin:0 0 8px; font-size:13px; letter-spacing:1.1px; color:var(--gold); font-weight:900;}
+.rulecard .big{font-size:19px; font-weight:800; line-height:1.5;}
+.rulecard .en{color:var(--muted); font-size:13.5px; margin-top:6px; line-height:1.45;}
+.paratable{width:100%; border-collapse:collapse; margin-top:4px;}
+.paratable td{padding:7px 6px; border-bottom:1px solid var(--border); font-size:16.5px;}
+.paratable tr:last-child td{border-bottom:none;}
+.paratable .pr{color:var(--green); font-weight:900; width:44px;}
+.paratable .sj{color:var(--muted); font-size:12.5px; width:70px;}
+.paratable .sp{width:40px; text-align:right;}
+.spk{width:34px; height:34px; border-radius:10px; background:var(--surface); font-size:15px;}
+.spk:active{background:var(--surface-hover);}
+.bigcta{display:block; width:100%; margin-top:14px; background:var(--green); color:#0c0f12; font-size:18px; font-weight:900;
+  border-radius:18px; padding:17px; text-align:center; box-shadow:var(--shadow);}
+.bigcta:active{background:var(--green-hover); transform:scale(.985);}
+.ctarow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+.midcta{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; font-weight:800; font-size:15px; text-align:center;}
+.midcta:active{background:var(--surface-hover);}
+
+/* ---------- drill ---------- */
+.dprog{display:flex; align-items:center; gap:10px; margin:4px 0 14px;}
+.dbar{flex:1; height:8px; background:var(--surface); border-radius:99px; overflow:hidden;}
+.dbar i{display:block; height:100%; width:0%; background:var(--green); border-radius:99px; transition:width .25s;}
+.combo{font-weight:900; font-size:14px; color:var(--muted); min-width:52px; text-align:right;}
+.combo.hot{color:var(--gold);}
+.qcard{background:var(--card); border:1px solid var(--border); border-radius:22px; padding:22px 18px; text-align:center; box-shadow:var(--shadow); position:relative; overflow:hidden;}
+.qcard.correct{animation:okflash .5s;}
+.qcard.wrong{animation:shake .4s;}
+@keyframes okflash{0%{box-shadow:0 0 0 3px var(--green) inset;}100%{box-shadow:none;}}
+@keyframes shake{0%,100%{transform:none;}20%,60%{transform:translateX(-7px);}40%,80%{transform:translateX(7px);}}
+.qkind{font-size:11px; letter-spacing:1.6px; color:var(--muted); font-weight:900; margin-bottom:10px;}
+.qsub{color:var(--blue); font-size:14px; font-weight:800; margin-bottom:6px;}
+.qmain{font-size:26px; font-weight:800; line-height:1.35; min-height:36px;}
+.qmain .blank{display:inline-block; min-width:52px; border-bottom:3px solid var(--gold); color:var(--gold); font-weight:900;}
+.qen{color:var(--muted); font-size:14.5px; margin-top:10px; min-height:18px;}
+.qfeed{margin-top:12px; font-size:15px; font-weight:800; min-height:22px;}
+.qfeed.ok{color:var(--green);}
+.qfeed.no{color:var(--red);}
+.qnote{color:var(--muted); font-size:12.5px; margin-top:4px; line-height:1.4;}
+.prongrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
+.pronbtn{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:17px 0; font-size:21px; font-weight:900;}
+.pronbtn:active{background:var(--surface-hover);}
+.pronbtn.zero{grid-column:2; color:var(--purple);}
+.pronbtn.hit{background:var(--green); color:#0c0f12; border-color:var(--green);}
+.pronbtn.miss{background:var(--red); color:#0c0f12; border-color:var(--red);}
+.pronbtn.dim{opacity:.35;}
+.mclist{display:flex; flex-direction:column; gap:9px; margin-top:16px;}
+.mcbtn{background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:14px; font-size:17px; font-weight:700; text-align:center;}
+.mcbtn:active{background:var(--surface-hover);}
+.mcbtn.hit{background:var(--green); color:#0c0f12; border-color:var(--green);}
+.mcbtn.miss{background:var(--red); color:#0c0f12; border-color:var(--red);}
+.mcbtn.dim{opacity:.35;}
+.tilewrap{margin-top:14px;}
+.tileans{min-height:52px; border:2px dashed var(--border); border-radius:14px; padding:8px; display:flex; flex-wrap:wrap; gap:7px; justify-content:center; align-items:center; margin-bottom:12px;}
+.tilepool{display:flex; flex-wrap:wrap; gap:8px; justify-content:center;}
+.tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 14px; font-size:18px; font-weight:800;}
+.tile:active{background:var(--surface-hover);}
+.tileans .tile{background:#20262e; border-color:#3d4450;}
+.typerow{margin-top:16px;}
+.typerow input{width:100%; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; color:var(--ink);
+  font-size:19px; font-weight:700; padding:14px; text-align:center; outline:none;}
+.typerow input:focus{border-color:var(--green);}
+.accrow{display:flex; gap:7px; justify-content:center; margin-top:9px;}
+.accbtn{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 12px; font-size:16px; font-weight:800;}
+.checkbtn{display:block; width:100%; margin-top:12px; background:var(--green); color:#0c0f12; font-weight:900; font-size:17px; border-radius:14px; padding:14px;}
+.checkbtn:disabled{opacity:.4;}
+.micbtn{width:84px; height:84px; border-radius:50%; background:var(--surface); border:2px solid var(--border); font-size:34px; margin:14px auto 4px; display:flex; align-items:center; justify-content:center;}
+.micbtn.live{background:var(--red); border-color:var(--red); animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.heard{color:var(--muted); font-size:14px; min-height:18px; margin-top:6px; font-style:italic;}
+.selfgrade{display:flex; gap:10px; margin-top:12px;}
+.selfgrade button{flex:1; border-radius:14px; padding:13px; font-weight:900; font-size:16px;}
+.sgok{background:var(--green); color:#0c0f12;}
+.sgno{background:var(--surface); border:1px solid var(--red); color:var(--red);}
+.replaybtn{background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:12px 22px; font-size:16px; font-weight:800; margin-top:8px;}
+.skiplink{display:block; margin:16px auto 0; color:var(--muted); font-size:13.5px; font-weight:700; text-decoration:underline; text-underline-offset:3px;}
+.nextbar{display:block; width:100%; margin-top:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; font-weight:900; font-size:16px;}
+.fastflag{position:absolute; top:12px; right:14px; font-size:13px; font-weight:900; color:var(--gold); opacity:0; transform:translateY(6px); transition:all .25s;}
+.fastflag.show{opacity:1; transform:none;}
+
+/* ---------- end screen ---------- */
+.endcard{background:var(--card); border:1px solid var(--border); border-radius:22px; padding:26px 20px; text-align:center; box-shadow:var(--shadow); margin-top:8px;}
+.endcard .bigemo{font-size:52px;}
+.endcard h2{margin:8px 0 4px; font-size:24px; font-weight:900;}
+.endstats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0 6px;}
+.endstat{background:var(--surface); border-radius:14px; padding:12px 6px;}
+.endstat .v{font-size:22px; font-weight:900;}
+.endstat .k{font-size:11px; color:var(--muted); font-weight:800; letter-spacing:.6px; margin-top:2px;}
+.weakchips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:10px;}
+.wchip{background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:6px 11px; font-size:12.5px; font-weight:700; color:var(--muted);}
+
+/* ---------- car mode ---------- */
+#scr-car .wrap{max-width:640px;}
+.carstage{background:var(--card); border:1px solid var(--border); border-radius:24px; min-height:46vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; padding:26px 18px; box-shadow:var(--shadow); margin-top:6px;}
+.carphase{font-size:12px; letter-spacing:2px; color:var(--muted); font-weight:900; margin-bottom:14px;}
+.carphase.think{color:var(--gold);}
+.cartext{font-size:31px; font-weight:900; line-height:1.3;}
+.cartext.en{color:var(--blue); font-size:25px; font-weight:800;}
+.carsub{color:var(--muted); font-size:16px; margin-top:12px; min-height:20px;}
+.carctrl{display:flex; align-items:center; justify-content:center; gap:18px; margin-top:20px;}
+.carbtn{width:64px; height:64px; border-radius:50%; background:var(--card); border:1px solid var(--border); font-size:24px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);}
+.carbtn:active{background:var(--surface-hover);}
+.carbtn.main{width:88px; height:88px; font-size:34px; background:var(--green); color:#0c0f12; border-color:var(--green);}
+.carmeta{display:flex; justify-content:center; gap:14px; color:var(--muted); font-weight:800; font-size:13.5px; margin-top:16px;}
+.carsets{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px;}
+.carset{background:var(--card); border:1px solid var(--border); border-radius:15px; padding:12px;}
+.carset .k{font-size:11.5px; color:var(--muted); font-weight:900; letter-spacing:.8px; margin-bottom:7px;}
+.segrow{display:flex; gap:6px;}
+.seg{flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 2px; font-size:13.5px; font-weight:800; text-align:center;}
+.seg.on{background:var(--green); color:#0c0f12; border-color:var(--green);}
+.carnote{color:var(--muted); font-size:12.5px; text-align:center; margin-top:14px; line-height:1.5;}
+
+/* ---------- speed ---------- */
+.speedhead{display:flex; justify-content:space-between; align-items:center; margin:6px 0 12px; font-weight:900;}
+.stime{font-size:34px; font-variant-numeric:tabular-nums;}
+.stime.low{color:var(--red);}
+.sscore{font-size:22px; color:var(--gold);}
+
+/* ---------- progress ---------- */
+.heat{width:100%; border-collapse:separate; border-spacing:4px; margin-top:6px;}
+.heat th{font-size:10.5px; color:var(--muted); font-weight:800; letter-spacing:.4px; padding:2px;}
+.heat td.vname{font-size:13px; font-weight:800; text-align:right; padding-right:6px; white-space:nowrap;}
+.heat td.cell{height:34px; border-radius:9px; background:var(--surface); text-align:center; font-size:11px; font-weight:900; color:#0c0f12; min-width:34px;}
+.statgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:14px;}
+.statbox{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; text-align:center;}
+.statbox .v{font-size:26px; font-weight:900;}
+.statbox .k{font-size:11.5px; color:var(--muted); font-weight:800; margin-top:3px; letter-spacing:.5px;}
+.dangerbtn{display:block; margin:22px auto 0; color:var(--red); font-size:13px; font-weight:800; text-decoration:underline; text-underline-offset:3px;}
+
+/* ---------- cheat sheet ---------- */
+.cheatcard{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:15px 16px; margin-bottom:12px;}
+.cheatcard h3{margin:0 0 9px; font-size:13px; letter-spacing:1.2px; color:var(--gold); font-weight:900;}
+.cheatrow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); font-size:16px;}
+.cheatrow:last-child{border-bottom:none;}
+.cheatrow .it{font-weight:800;}
+.cheatrow .en{color:var(--muted); font-size:13px; text-align:right;}
+.cheatnote{color:var(--muted); font-size:13.5px; line-height:1.55; margin-top:6px;}
+.cheatnote b{color:var(--ink);}
+
+/* ---------- modal ---------- */
+.modalbg{position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:100; display:none; align-items:flex-end; justify-content:center;}
+.modalbg.on{display:flex;}
+.modal{background:var(--card); border:1px solid var(--border); border-radius:24px 24px 0 0; padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+  width:100%; max-width:540px; animation:slideup .25s ease;}
+@keyframes slideup{from{transform:translateY(40px); opacity:0;} to{transform:none; opacity:1;}}
+.modal h2{margin:0 0 8px; font-size:22px; font-weight:900;}
+.modal p{color:var(--muted); font-size:14.5px; line-height:1.55; margin:6px 0 14px;}
+.genderrow{display:flex; gap:10px;}
+.genderrow button{flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:16px 8px; font-size:16px; font-weight:800;}
+.genderrow button.on{border-color:var(--green); background:rgba(63,185,80,.12);}
+.toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(80px);
+  background:var(--surface); border:1px solid var(--border); color:var(--ink); padding:12px 20px; border-radius:99px;
+  font-weight:800; font-size:14px; z-index:200; transition:transform .3s ease; box-shadow:var(--shadow); white-space:nowrap;}
+.toast.on{transform:translateX(-50%) translateY(0);}
+.xpfly{position:fixed; z-index:150; font-weight:900; color:var(--gold); font-size:18px; pointer-events:none; animation:xpfly 0.9s ease forwards;}
+@keyframes xpfly{from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-46px);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HOME ============ -->
+  <section class="screen" id="scr-home">
+    <div class="topbar">
+      <div class="tbtitle" style="font-size:15px;color:var(--muted)">🇮🇹 Verbi riflessivi</div>
+      <div class="tbside"><span class="streakchip" id="streakChip">🔥 0</span></div>
+    </div>
+    <div class="hero">
+      <h1><span class="tri">RIFLESSIVI</span></h1>
+      <div class="tag">7 verbi · 7 giorni · puro istinto</div>
+    </div>
+    <div class="instinct">
+      <div class="row"><span class="lbl">ISTINTO</span><span class="num" id="instinctNum">0<small>/1000</small></span></div>
+      <div class="imeter"><i id="instinctBar"></i></div>
+      <div class="sub"><span id="todayGoal">Obiettivo di oggi: 0/30</span><span id="lvlName">Principiante</span></div>
+    </div>
+    <div class="quickrow">
+      <button class="qbtn" onclick="goDrill(state.recoDay)"><span class="ic">🏋️</span><span class="t">Allenati</span></button>
+      <button class="qbtn" onclick="goCar()"><span class="ic">🚗</span><span class="t">In auto</span></button>
+      <button class="qbtn" onclick="goSpeed()"><span class="ic">⚡</span><span class="t">Lampo</span></button>
+      <button class="qbtn" onclick="show('scr-cheat')"><span class="ic">📖</span><span class="t">Bigino</span></button>
+    </div>
+    <div class="sechead"><h2>IL PIANO — 7 GIORNI</h2><button style="color:var(--muted);font-size:12.5px;font-weight:800" onclick="show('scr-prog');renderProgress()">Progressi →</button></div>
+    <div id="dayList"></div>
+    <div class="carnote" style="margin-top:4px">I 7 verbi: svegliarsi · alzarsi · lavarsi · vestirsi · chiamarsi · sentirsi · divertirsi</div>
+  </section>
+
+  <!-- ============ DAY INTRO ============ -->
+  <section class="screen" id="scr-day">
+    <div class="topbar">
+      <button class="backbtn" onclick="show('scr-home');renderHome()">←</button>
+      <div class="tbtitle" id="dayTitle">Giorno 1</div>
+      <div class="tbside"><span class="streakchip" id="dayMast">0%</span></div>
+    </div>
+    <div id="dayIntro"></div>
+  </section>
+
+  <!-- ============ DRILL ============ -->
+  <section class="screen" id="scr-drill">
+    <div class="topbar">
+      <button class="backbtn" onclick="quitDrill()">✕</button>
+      <div class="dprog" style="flex:1;margin:0">
+        <div class="dbar"><i id="drillBar"></i></div>
+        <span class="combo" id="comboLbl">—</span>
+      </div>
+    </div>
+    <div class="qcard" id="qcard">
+      <span class="fastflag" id="fastFlag">⚡ istinto!</span>
+      <div class="qkind" id="qKind">SCEGLI IL PRONOME</div>
+      <div class="qsub" id="qSub"></div>
+      <div class="qmain" id="qMain"></div>
+      <div class="qen" id="qEn"></div>
+      <div id="qBody"></div>
+      <div class="qfeed" id="qFeed"></div>
+      <div class="qnote" id="qNote"></div>
+    </div>
+    <div id="qAfter"></div>
+  </section>
+
+  <!-- ============ DRILL END ============ -->
+  <section class="screen" id="scr-end">
+    <div class="topbar"><button class="backbtn" onclick="show('scr-home');renderHome()">←</button><div class="tbtitle">Risultato</div></div>
+    <div class="endcard" id="endCard"></div>
+    <button class="bigcta" id="endAgain">Ancora 20 🔁</button>
+    <button class="nextbar" onclick="show('scr-home');renderHome()">Torna a casa</button>
+  </section>
+
+  <!-- ============ CAR MODE ============ -->
+  <section class="screen" id="scr-car">
+    <div class="topbar">
+      <button class="backbtn" onclick="stopCar();show('scr-home');renderHome()">←</button>
+      <div class="tbtitle">🚗 Modalità auto</div>
+      <div class="tbside"><span class="streakchip" id="carCount">0/0</span></div>
+    </div>
+    <div class="carstage">
+      <div class="carphase" id="carPhase">PRONTO</div>
+      <div class="cartext" id="carText">Premi play e guida.</div>
+      <div class="carsub" id="carSub">Ascolti l'inglese → dici la frase in italiano → senti la risposta.</div>
+    </div>
+    <div class="carctrl">
+      <button class="carbtn" onclick="carPrev()">⏮</button>
+      <button class="carbtn main" id="carPlay" onclick="toggleCar()">▶</button>
+      <button class="carbtn" onclick="carNext(true)">⏭</button>
+    </div>
+    <div class="carmeta"><span id="carElapsed">0:00</span><span>·</span><span id="carScopeLbl">Tutto</span></div>
+    <div class="carsets">
+      <div class="carset"><div class="k">CONTENUTO</div><div class="segrow" id="carScopeRow"></div></div>
+      <div class="carset"><div class="k">PAUSA PER RISPONDERE</div><div class="segrow" id="carPauseRow"></div></div>
+      <div class="carset"><div class="k">RIPETI LA RISPOSTA</div><div class="segrow" id="carRepRow"></div></div>
+      <div class="carset"><div class="k">DIREZIONE</div><div class="segrow" id="carDirRow"></div></div>
+    </div>
+    <div class="carnote">Lo schermo resta acceso durante la riproduzione. Volume su, telefono nel supporto, occhi sulla strada. 🇮🇹</div>
+  </section>
+
+  <!-- ============ SPEED ============ -->
+  <section class="screen" id="scr-speed">
+    <div class="topbar">
+      <button class="backbtn" id="speedBack" onclick="quitSpeed()">✕</button>
+      <div class="speedhead" style="flex:1;margin:0">
+        <span class="stime" id="sTime">60</span>
+        <span class="sscore" id="sScore">0</span>
+      </div>
+    </div>
+    <div class="qcard" id="sCard">
+      <div class="qkind">⚡ SFIDA LAMPO — 60 SECONDI</div>
+      <div class="qmain" id="sMain">Rispondi più in fretta che puoi!</div>
+      <div class="qen" id="sEn"></div>
+      <div id="sBody"><button class="bigcta" onclick="startSpeed()">VIA ⚡</button></div>
+    </div>
+  </section>
+
+  <!-- ============ PROGRESS ============ -->
+  <section class="screen" id="scr-prog">
+    <div class="topbar"><button class="backbtn" onclick="show('scr-home');renderHome()">←</button><div class="tbtitle">📊 Progressi</div></div>
+    <div id="progBody"></div>
+    <button class="dangerbtn" onclick="resetAll()">Azzera tutti i progressi</button>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="screen" id="scr-cheat">
+    <div class="topbar"><button class="backbtn" onclick="show('scr-home');renderHome()">←</button><div class="tbtitle">📖 Il bigino</div></div>
+    <div id="cheatBody"></div>
+  </section>
+
+</div>
+
+<!-- onboarding modal -->
+<div class="modalbg" id="obModal">
+  <div class="modal">
+    <h2>Ciao Nato! 👋</h2>
+    <p>7 verbi riflessivi, 7 giorni, un solo obiettivo: <b style="color:var(--ink)">istinto</b>.<br>
+    Una cosa sola prima di partire — al passato l'accordo dipende da te:</p>
+    <div class="genderrow">
+      <button id="gM" onclick="setGender('m')">«Mi sono alzat<b style="color:var(--green)">o</b>»<br><small style="color:var(--muted)">maschile</small></button>
+      <button id="gF" onclick="setGender('f')">«Mi sono alzat<b style="color:var(--green)">a</b>»<br><small style="color:var(--muted)">femminile</small></button>
+    </div>
+    <button class="bigcta" onclick="closeOb()">Si comincia! 🚀</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   DATA — 7 verbs, all patterns, curated sentence bank
+   ================================================================ */
+const P    = ["mi","ti","si","ci","vi","si"];
+const ESS  = ["sono","sei","è","siamo","siete","sono"];
+const SUBJ = ["io","tu","lui / lei","noi","voi","loro"];
+const SUBJ_EN = ["I","you","he / she","we","you all","they"];
+
+const VERBS = [
+ {id:"svegliarsi", ic:"⏰", en:"to wake up",  pres:["sveglio","svegli","sveglia","svegliamo","svegliate","svegliano"], pp:"svegliat", att:"svegliar",
+  tail:"alle sette", tailEn:"at seven",       enV:["wake up","wakes up"]},
+ {id:"alzarsi",    ic:"🛏️", en:"to get up",   pres:["alzo","alzi","alza","alziamo","alzate","alzano"], pp:"alzat", att:"alzar",
+  tail:"presto", tailEn:"early",              enV:["get up","gets up"]},
+ {id:"lavarsi",    ic:"🚿", en:"to wash (oneself)", pres:["lavo","lavi","lava","laviamo","lavate","lavano"], pp:"lavat", att:"lavar",
+  tail:"i denti", tailEn:"(my/your/…) teeth", enV:["wash","washes"]},
+ {id:"vestirsi",   ic:"👔", en:"to get dressed", pres:["vesto","vesti","veste","vestiamo","vestite","vestono"], pp:"vestit", att:"vestir",
+  tail:"in fretta", tailEn:"in a hurry",      enV:["get dressed","gets dressed"]},
+ {id:"chiamarsi",  ic:"🪪", en:"to be called", pres:["chiamo","chiami","chiama","chiamiamo","chiamate","chiamano"], pp:"chiamat", att:"chiamar",
+  tail:"", tailEn:"",                          enV:["am called","is called"]},
+ {id:"sentirsi",   ic:"💭", en:"to feel",     pres:["sento","senti","sente","sentiamo","sentite","sentono"], pp:"sentit", att:"sentir",
+  tail:"bene", tailEn:"good",                 enV:["feel","feels"]},
+ {id:"divertirsi", ic:"🎉", en:"to have fun", pres:["diverto","diverti","diverte","divertiamo","divertite","divertono"], pp:"divertit", att:"divertir",
+  tail:"molto", tailEn:"a lot",               enV:["have fun","has fun"]},
+];
+const VIX = Object.fromEntries(VERBS.map((v,i)=>[v.id,i]));
+// chiamarsi needs person-specific tails
+const CHIAMA_TAIL = ["Nato","Marco, vero?","Bruno","Sterling","Bianchi?","Leo e Mia"];
+
+/* ---------- curated sentence bank ----------
+   d: day · v: verb id · p: person 0-5 · t: pres|pass|mod|imp
+   it/en: the sentence · alt: also-accepted answers · g: gender of subject (passato)
+   note: micro-grammar tip shown on feedback                                  */
+const BANK = [
+ // ---- DAY 1 · present, singular ----
+ {d:1,v:"svegliarsi",p:0,t:"pres",it:"Mi sveglio alle sette.",en:"I wake up at seven."},
+ {d:1,v:"svegliarsi",p:1,t:"pres",it:"A che ora ti svegli?",en:"What time do you wake up?"},
+ {d:1,v:"svegliarsi",p:2,t:"pres",it:"Marco si sveglia presto.",en:"Marco wakes up early."},
+ {d:1,v:"alzarsi",p:0,t:"pres",it:"Mi alzo subito.",en:"I get up right away."},
+ {d:1,v:"alzarsi",p:1,t:"pres",it:"Ti alzi tardi la domenica?",en:"Do you get up late on Sundays?"},
+ {d:1,v:"alzarsi",p:2,t:"pres",it:"Mia moglie si alza alle sei.",en:"My wife gets up at six."},
+ {d:1,v:"lavarsi",p:0,t:"pres",it:"Mi lavo i denti.",en:"I brush my teeth."},
+ {d:1,v:"lavarsi",p:1,t:"pres",it:"Ti lavi le mani prima di mangiare?",en:"Do you wash your hands before eating?"},
+ {d:1,v:"lavarsi",p:2,t:"pres",it:"Luca si lava la faccia.",en:"Luca washes his face."},
+ {d:1,v:"vestirsi",p:0,t:"pres",it:"Mi vesto in cinque minuti.",en:"I get dressed in five minutes."},
+ {d:1,v:"vestirsi",p:1,t:"pres",it:"Come ti vesti stasera?",en:"How are you dressing tonight?"},
+ {d:1,v:"vestirsi",p:2,t:"pres",it:"Anna si veste di nero.",en:"Anna dresses in black."},
+ {d:1,v:"chiamarsi",p:0,t:"pres",it:"Mi chiamo Nato.",en:"My name is Nato."},
+ {d:1,v:"chiamarsi",p:1,t:"pres",it:"Come ti chiami?",en:"What's your name?"},
+ {d:1,v:"chiamarsi",p:2,t:"pres",it:"Il mio cane si chiama Bruno.",en:"My dog is called Bruno."},
+ {d:1,v:"sentirsi",p:0,t:"pres",it:"Oggi mi sento bene.",en:"Today I feel good."},
+ {d:1,v:"sentirsi",p:1,t:"pres",it:"Come ti senti?",en:"How do you feel?"},
+ {d:1,v:"sentirsi",p:2,t:"pres",it:"Paola non si sente bene.",en:"Paola doesn't feel well."},
+ {d:1,v:"divertirsi",p:0,t:"pres",it:"Mi diverto con gli amici.",en:"I have fun with my friends."},
+ {d:1,v:"divertirsi",p:1,t:"pres",it:"Ti diverti in Italia?",en:"Are you having fun in Italy?"},
+ {d:1,v:"divertirsi",p:2,t:"pres",it:"Mio figlio si diverte al parco.",en:"My son has fun at the park."},
+ // ---- DAY 2 · present, plural ----
+ {d:2,v:"svegliarsi",p:3,t:"pres",it:"Ci svegliamo alle sei e mezza.",en:"We wake up at six thirty."},
+ {d:2,v:"svegliarsi",p:4,t:"pres",it:"Vi svegliate presto?",en:"Do you all wake up early?"},
+ {d:2,v:"svegliarsi",p:5,t:"pres",it:"I bambini si svegliano tardi.",en:"The kids wake up late."},
+ {d:2,v:"alzarsi",p:3,t:"pres",it:"Ci alziamo tra dieci minuti.",en:"We're getting up in ten minutes."},
+ {d:2,v:"alzarsi",p:4,t:"pres",it:"Vi alzate adesso?",en:"Are you all getting up now?"},
+ {d:2,v:"alzarsi",p:5,t:"pres",it:"I nonni si alzano all'alba.",en:"The grandparents get up at dawn."},
+ {d:2,v:"lavarsi",p:3,t:"pres",it:"Ci laviamo le mani prima di cena.",en:"We wash our hands before dinner."},
+ {d:2,v:"lavarsi",p:4,t:"pres",it:"Vi lavate i denti ogni sera?",en:"Do you all brush your teeth every evening?"},
+ {d:2,v:"lavarsi",p:5,t:"pres",it:"Le ragazze si lavano i capelli.",en:"The girls wash their hair."},
+ {d:2,v:"vestirsi",p:3,t:"pres",it:"Ci vestiamo in fretta.",en:"We get dressed in a hurry."},
+ {d:2,v:"vestirsi",p:4,t:"pres",it:"Vi vestite eleganti stasera?",en:"Are you all dressing up tonight?"},
+ {d:2,v:"vestirsi",p:5,t:"pres",it:"Gli attori si vestono in camerino.",en:"The actors get dressed in the dressing room."},
+ {d:2,v:"chiamarsi",p:3,t:"pres",it:"Di cognome ci chiamiamo Sterling.",en:"Our last name is Sterling."},
+ {d:2,v:"chiamarsi",p:4,t:"pres",it:"Come vi chiamate?",en:"What are your names?"},
+ {d:2,v:"chiamarsi",p:5,t:"pres",it:"I gemelli si chiamano Leo e Max.",en:"The twins are called Leo and Max."},
+ {d:2,v:"sentirsi",p:3,t:"pres",it:"Ci sentiamo un po' stanchi.",en:"We feel a bit tired."},
+ {d:2,v:"sentirsi",p:4,t:"pres",it:"Vi sentite pronti?",en:"Do you all feel ready?"},
+ {d:2,v:"sentirsi",p:5,t:"pres",it:"Si sentono felici qui.",en:"They feel happy here."},
+ {d:2,v:"divertirsi",p:3,t:"pres",it:"Ci divertiamo molto insieme.",en:"We have a lot of fun together."},
+ {d:2,v:"divertirsi",p:4,t:"pres",it:"Vi divertite alla festa?",en:"Are you all having fun at the party?"},
+ {d:2,v:"divertirsi",p:5,t:"pres",it:"Si divertono un mondo.",en:"They're having a blast."},
+ // ---- DAY 3 · negation & questions ----
+ {d:3,v:"alzarsi",p:0,t:"pres",it:"Non mi alzo presto la domenica.",en:"I don't get up early on Sundays.",note:"non + pronome + verbo"},
+ {d:3,v:"sentirsi",p:2,t:"pres",it:"Marco non si sente bene oggi.",en:"Marco doesn't feel well today."},
+ {d:3,v:"vestirsi",p:1,t:"pres",it:"Perché non ti vesti?",en:"Why aren't you getting dressed?"},
+ {d:3,v:"svegliarsi",p:3,t:"pres",it:"Non ci svegliamo mai prima delle otto.",en:"We never wake up before eight."},
+ {d:3,v:"alzarsi",p:4,t:"pres",it:"A che ora vi alzate domani?",en:"What time are you all getting up tomorrow?"},
+ {d:3,v:"divertirsi",p:0,t:"pres",it:"Non mi diverto per niente.",en:"I'm not having fun at all."},
+ // ---- DAY 4 · passato prossimo (essere + agreement) ----
+ {d:4,v:"svegliarsi",p:0,t:"pass",g:"u",it:"Ieri mi sono svegliato tardi.",itF:"Ieri mi sono svegliata tardi.",en:"Yesterday I woke up late."},
+ {d:4,v:"alzarsi",p:1,t:"pass",g:"m",it:"Ti sei alzato alle sei?",en:"Did you get up at six? (to a man)",note:"a una donna: alzata"},
+ {d:4,v:"vestirsi",p:2,t:"pass",g:"f",it:"Maria si è vestita elegante.",en:"Maria dressed up elegantly."},
+ {d:4,v:"lavarsi",p:2,t:"pass",g:"m",it:"Marco si è lavato le mani.",en:"Marco washed his hands.",note:"accordo col soggetto, non con «le mani»"},
+ {d:4,v:"divertirsi",p:3,t:"pass",g:"mp",it:"Ci siamo divertiti moltissimo.",en:"We had a great time."},
+ {d:4,v:"divertirsi",p:5,t:"pass",g:"fp",it:"Le ragazze si sono divertite.",en:"The girls had fun."},
+ {d:4,v:"sentirsi",p:4,t:"pass",g:"mp",it:"Vi siete sentiti male?",en:"Did you all feel sick?"},
+ {d:4,v:"svegliarsi",p:5,t:"pass",g:"mp",it:"I bambini si sono svegliati presto.",en:"The kids woke up early."},
+ {d:4,v:"sentirsi",p:2,t:"pass",g:"f",it:"Mia nonna si è sentita male ieri.",en:"My grandma felt ill yesterday."},
+ {d:4,v:"lavarsi",p:0,t:"pass",g:"u",it:"Stamattina non mi sono lavato i capelli.",itF:"Stamattina non mi sono lavata i capelli.",en:"This morning I didn't wash my hair."},
+ {d:4,v:"alzarsi",p:5,t:"pass",g:"fp",it:"Anna e Sara si sono alzate tardi.",en:"Anna and Sara got up late."},
+ {d:4,v:"vestirsi",p:3,t:"pass",g:"mp",it:"Ieri sera ci siamo vestiti bene.",en:"Last night we dressed up."},
+ // ---- DAY 5 · modals + infinitive ----
+ {d:5,v:"alzarsi",p:0,t:"mod",it:"Domani devo alzarmi presto.",alt:["Domani mi devo alzare presto."],en:"Tomorrow I have to get up early.",note:"anche: «mi devo alzare» — tutte e due giuste"},
+ {d:5,v:"svegliarsi",p:0,t:"mod",it:"Non voglio svegliarmi alle sei.",alt:["Non mi voglio svegliare alle sei."],en:"I don't want to wake up at six."},
+ {d:5,v:"lavarsi",p:1,t:"mod",it:"Puoi lavarti le mani?",alt:["Ti puoi lavare le mani?"],en:"Can you wash your hands?"},
+ {d:5,v:"vestirsi",p:3,t:"mod",it:"Dobbiamo vestirci bene stasera.",alt:["Ci dobbiamo vestire bene stasera."],en:"We have to dress well tonight."},
+ {d:5,v:"divertirsi",p:2,t:"mod",it:"Vuole divertirsi un po'.",alt:["Si vuole divertire un po'."],en:"He wants to have some fun."},
+ {d:5,v:"svegliarsi",p:4,t:"mod",it:"Potete svegliarvi più tardi domani.",alt:["Vi potete svegliare più tardi domani."],en:"You all can wake up later tomorrow."},
+ {d:5,v:"alzarsi",p:5,t:"mod",it:"Vogliono alzarsi tardi.",alt:["Si vogliono alzare tardi."],en:"They want to get up late."},
+ {d:5,v:"alzarsi",p:2,t:"mod",it:"È ora di alzarsi!",en:"It's time to get up!",note:"espressione fissa — infinito"},
+ {d:5,v:"lavarsi",p:0,t:"mod",it:"Vado a lavarmi.",en:"I'm going to wash up."},
+ {d:5,v:"vestirsi",p:0,t:"mod",it:"Prima di vestirmi, faccio colazione.",en:"Before getting dressed, I have breakfast.",note:"dopo una preposizione: infinito + pronome"},
+ // ---- DAY 6 · imperative ----
+ {d:6,v:"svegliarsi",p:1,t:"imp",it:"Svegliati! È tardi!",en:"Wake up! It's late!"},
+ {d:6,v:"alzarsi",p:1,t:"imp",it:"Alzati subito!",en:"Get up right now!"},
+ {d:6,v:"lavarsi",p:1,t:"imp",it:"Lavati le mani!",en:"Wash your hands!"},
+ {d:6,v:"vestirsi",p:1,t:"imp",it:"Vestiti, usciamo!",en:"Get dressed, we're going out!"},
+ {d:6,v:"divertirsi",p:1,t:"imp",it:"Divertiti stasera!",en:"Have fun tonight!"},
+ {d:6,v:"sentirsi",p:1,t:"imp",it:"Sentiti a casa.",en:"Make yourself at home."},
+ {d:6,v:"alzarsi",p:3,t:"imp",it:"Alziamoci presto domani.",en:"Let's get up early tomorrow."},
+ {d:6,v:"divertirsi",p:3,t:"imp",it:"Divertiamoci!",en:"Let's have fun!"},
+ {d:6,v:"svegliarsi",p:4,t:"imp",it:"Svegliatevi, ragazzi!",en:"Wake up, guys!"},
+ {d:6,v:"lavarsi",p:4,t:"imp",it:"Lavatevi i denti!",en:"Brush your teeth!"},
+ {d:6,v:"vestirsi",p:4,t:"imp",it:"Vestitevi bene, fa freddo.",en:"Dress warmly, it's cold."},
+ {d:6,v:"divertirsi",p:4,t:"imp",it:"Divertitevi!",en:"Have fun, all of you!"},
+ {d:6,v:"alzarsi",p:1,t:"imp",it:"Non alzarti ancora.",alt:["Non ti alzare ancora."],en:"Don't get up yet.",note:"negativo: non alzarti = non ti alzare"},
+ {d:6,v:"svegliarsi",p:1,t:"imp",it:"Non svegliarti così tardi.",alt:["Non ti svegliare così tardi."],en:"Don't wake up so late."},
+];
+
+/* ---------- reflexive-or-not traps (day 3) ----------
+   ans "0" = no pronoun (transitive use)                                     */
+const TRAPS = [
+ {s:"io",  q:"chiamo il dottore.",        ans:"0", full:"Chiamo il dottore.",              en:"I call the doctor.",            note:"chiamare qualcuno → niente pronome"},
+ {s:"io",  q:"chiamo Nato.",              ans:"mi",full:"Mi chiamo Nato.",                 en:"My name is Nato.",              note:"chiamarsi = «essere chiamato»"},
+ {s:"io",  q:"sveglio mio figlio alle sette.",ans:"0",full:"Sveglio mio figlio alle sette.",en:"I wake my son at seven.",      note:"svegli qualcun altro → no pronome"},
+ {s:"io",  q:"sveglio alle sette.",       ans:"mi",full:"Mi sveglio alle sette.",          en:"I wake up at seven."},
+ {s:"la mamma",q:"lava i piatti.",        ans:"0", full:"La mamma lava i piatti.",         en:"Mom washes the dishes.",        note:"lava un oggetto → no pronome"},
+ {s:"la mamma",q:"lava le mani.",         ans:"si",full:"La mamma si lava le mani.",       en:"Mom washes her hands.",         note:"parte del corpo → riflessivo"},
+ {s:"io",  q:"sento la musica.",          ans:"0", full:"Sento la musica.",                en:"I hear the music.",             note:"sentire = percepire → no pronome"},
+ {s:"io",  q:"sento stanco.",             ans:"mi",full:"Mi sento stanco.",                en:"I feel tired.",                 note:"sentirsi + aggettivo = provare"},
+ {s:"tu",  q:"vesti il bambino.",         ans:"0", full:"Vesti il bambino.",               en:"You dress the baby."},
+ {s:"tu",  q:"vesti sempre bene.",        ans:"ti",full:"Ti vesti sempre bene.",           en:"You always dress well."},
+ {s:"io",  q:"alzo il volume.",           ans:"0", full:"Alzo il volume.",                 en:"I turn up the volume.",         note:"alzare qualcosa → no pronome"},
+ {s:"noi", q:"alziamo presto domani.",    ans:"ci",full:"Ci alziamo presto domani.",       en:"We're getting up early tomorrow."},
+ {s:"il film",q:"diverte tutti.",         ans:"0", full:"Il film diverte tutti.",          en:"The movie amuses everyone.",    note:"divertire qualcuno → no pronome"},
+ {s:"i bambini",q:"divertono in giardino.",ans:"si",full:"I bambini si divertono in giardino.",en:"The kids have fun in the yard."},
+ {s:"tu",  q:"chiami un taxi?",           ans:"0", full:"Chiami un taxi?",                 en:"Are you calling a taxi?"},
+ {s:"voi", q:"lavate la macchina?",       ans:"0", full:"Lavate la macchina?",             en:"Are you all washing the car?"},
+];
+
+/* ---------- curated multiple-choice (avere vs essere, day 4) ---------- */
+const MCQS = [
+ {d:4,pre:"Ieri Maria ___ presto.",opts:["si è alzata","ha alzato","si ha alzato","è alzata"],a:0,en:"Yesterday Maria got up early.",note:"riflessivo → sempre ESSERE + accordo"},
+ {d:4,pre:"Ieri ___ la macchina.",opts:["ho lavato","mi sono lavato","sono lavato","ho lavata"],a:0,en:"Yesterday I washed the car.",note:"non riflessivo → avere, participio invariabile"},
+ {d:4,pre:"I ragazzi ___ alle nove.",opts:["si sono svegliati","hanno svegliato","si sono svegliato","sono svegliati"],a:0,en:"The boys woke up at nine."},
+ {d:4,pre:"Noi ___ tantissimo alla festa.",opts:["ci siamo divertiti","abbiamo divertito","ci abbiamo divertito","siamo divertiti"],a:0,en:"We had so much fun at the party."},
+ {d:4,pre:"Anna, ___ bene stamattina?",opts:["ti sei sentita","hai sentito","ti sei sentito","sei sentita"],a:0,en:"Anna, did you feel okay this morning?",note:"Anna → accordo femminile: sentitA"},
+ {d:4,pre:"Marco ___ un rumore strano.",opts:["ha sentito","si è sentito","è sentito","ha sentita"],a:0,en:"Marco heard a strange noise.",note:"sentire qualcosa → avere"},
+];
+
+/* ---------- modal & imperative pronoun-attach drills ---------- */
+const ATTACH = [
+ {d:5,pre:"Dobbiamo svegliar___ presto.",a:"ci",full:"Dobbiamo svegliarci presto.",en:"We have to wake up early."},
+ {d:5,pre:"Non voglio alzar___.",a:"mi",full:"Non voglio alzarmi.",en:"I don't want to get up."},
+ {d:5,pre:"Puoi lavar___ le mani?",a:"ti",full:"Puoi lavarti le mani?",en:"Can you wash your hands?"},
+ {d:5,pre:"Luca vuole divertir___.",a:"si",full:"Luca vuole divertirsi.",en:"Luca wants to have fun."},
+ {d:5,pre:"Potete vestir___ con calma.",a:"vi",full:"Potete vestirvi con calma.",en:"You all can get dressed calmly."},
+ {d:5,pre:"I bambini devono lavar___ i denti.",a:"si",full:"I bambini devono lavarsi i denti.",en:"The kids have to brush their teeth."},
+ {d:5,pre:"Devo sentir___ pronto prima di partire.",a:"mi",full:"Devo sentirmi pronto prima di partire.",en:"I need to feel ready before leaving."},
+ {d:6,pre:"Alza___! È tardi!",a:"ti",full:"Alzati! È tardi!",en:"Get up! It's late!"},
+ {d:6,pre:"Alziamo___ presto domani.",a:"ci",full:"Alziamoci presto domani.",en:"Let's get up early tomorrow."},
+ {d:6,pre:"Svegliate___, ragazzi!",a:"vi",full:"Svegliatevi, ragazzi!",en:"Wake up, guys!"},
+ {d:6,pre:"Diverti___ stasera!",a:"ti",full:"Divertiti stasera!",en:"Have fun tonight!"},
+ {d:6,pre:"Lavate___ le mani!",a:"vi",full:"Lavatevi le mani!",en:"Wash your hands, all of you!"},
+];
+
+/* ---------- 7-day curriculum meta ---------- */
+const DAYS = [
+ {n:1,title:"Il riflesso",sub:"mi · ti · si — il presente al singolare",
+  desc:"Il pronome cambia con la persona, sempre PRIMA del verbo. Oggi installiamo il riflesso di base.",
+  rule:{h:"LA REGOLA",big:"io → <b class='gr'>mi</b> · tu → <b class='gr'>ti</b> · lui/lei → <b class='gr'>si</b>",
+  en:"The pronoun matches the subject and sits right before the verb: mi alzo, ti alzi, si alza."},
+  table:{v:"alzarsi",rows:[0,1,2]}},
+ {n:2,title:"Tutte le persone",sub:"mi · ti · si · ci · vi · si — il ritmo completo",
+  desc:"Aggiungiamo il plurale. Ripeti il ritmo finché non diventa musica: mi-ti-si-ci-vi-si.",
+  rule:{h:"LA REGOLA",big:"noi → <b class='gr'>ci</b> · voi → <b class='gr'>vi</b> · loro → <b class='gr'>si</b>",
+  en:"Six persons, six pronouns — but «si» does double duty (lui/lei AND loro)."},
+  table:{v:"svegliarsi",rows:[0,1,2,3,4,5]}},
+ {n:3,title:"Le trappole",sub:"riflessivo o no? + negazione",
+  desc:"«Lavo la macchina» ma «MI lavo». Se l'azione ricade su di te → pronome. Su qualcun altro/qualcosa → niente.",
+  rule:{h:"LA REGOLA",big:"A te stesso → <b class='gr'>pronome</b>. A qualcun altro → <b class='rd'>niente</b>.<br>Negazione: <b class='gr'>non</b> + pronome + verbo",
+  en:"Lavo la macchina (I wash the car) vs Mi lavo (I wash myself). Negative: NON mi alzo."},
+  pairs:[["Chiamo il dottore.","Mi chiamo Nato."],["Sveglio mio figlio.","Mi sveglio alle 7."],["Sento la musica.","Mi sento stanco."]]},
+ {n:4,title:"Il passato",sub:"passato prossimo: sempre ESSERE + accordo",
+  desc:"Tutti i riflessivi usano ESSERE. E il participio si accorda col soggetto: alzato / alzata / alzati / alzate.",
+  rule:{h:"LA REGOLA",big:"pronome + <b class='gr'>essere</b> + participio<b class='gr'>-o/-a/-i/-e</b>",
+  en:"Mi sono alzato (m) / alzata (f) · Si sono alzati (they). Never «avere» with reflexives!"},
+  table:{v:"alzarsi",pass:true,rows:[0,1,2,3,4,5]}},
+ {n:5,title:"I modali",sub:"devo alzarmi = mi devo alzare",
+  desc:"Con dovere/volere/potere il pronome ha DUE posti validi: attaccato all'infinito, o prima del modale. Il pronome si accorda comunque col soggetto!",
+  rule:{h:"LA REGOLA",big:"Devo alzar<b class='gr'>mi</b> = <b class='gr'>Mi</b> devo alzare<br>Dobbiamo alzar<b class='gr'>ci</b> = <b class='gr'>Ci</b> dobbiamo alzare",
+  en:"Attach to the infinitive (drop the -e of -si) or put it before the modal. Both are correct."},
+  table:{v:"alzarsi",mod:true,rows:[0,1,2,3,4,5]}},
+ {n:6,title:"Gli ordini",sub:"imperativo: il pronome si attacca DOPO",
+  desc:"Negli ordini (tu/noi/voi) il pronome si incolla alla fine del verbo. Nel negativo con «tu» torna libero (o resta attaccato all'infinito).",
+  rule:{h:"LA REGOLA",big:"Alza<b class='gr'>ti</b>! · Alziamo<b class='gr'>ci</b>! · Alzate<b class='gr'>vi</b>!<br>Negativo: Non alzar<b class='gr'>ti</b> = Non <b class='gr'>ti</b> alzare",
+  en:"Commands glue the pronoun on the end. Svegliati! Divertitevi!"},
+  pairs:[["Svegliati!","Wake up!"],["Alziamoci!","Let's get up!"],["Divertitevi!","Have fun!"]]},
+ {n:7,title:"Maestria",sub:"l'esame finale — tutto mescolato",
+  desc:"40 domande, tutti i tempi, tutte le trappole, a ritmo serrato. Supera l'80% e i riflessivi sono tuoi.",
+  rule:{h:"L'ESAME",big:"40 domande · tutto il sistema · <b class='gr'>istinto puro</b>",
+  en:"Everything mixed: present, traps, passato, modals, imperatives. 80%+ = mastery."}},
+];
+
+/* ---------- helpers to build forms ---------- */
+const AGR = {m:"o",f:"a",mp:"i",fp:"e",u:null};
+function presForm(vi,p){ return P[p]+" "+VERBS[vi].pres[p]; }
+function passForm(vi,p,g){ const e=AGR[g]||((state.gender==="f"&&(p===0||p===1))?"a":(p<3?"o":"i")); return P[p]+" "+ESS[p]+" "+VERBS[vi].pp+e; }
+function attForm(vi,p){ return VERBS[vi].att+P[p]; }
+function presSentence(vi,p){ const v=VERBS[vi]; const tail=v.id==="chiamarsi"?CHIAMA_TAIL[p]:v.tail; return presForm(vi,p)+(tail?" "+tail:""); }
+/* ================================================================
+   STATE & SRS (Leitner, localStorage — per device)
+   ================================================================ */
+const LSK="riflessivi.v1";
+let state = {gender:null, start:null, streak:0, lastGoalDay:null, today:{d:null,n:0}, xp:0, bestSpeed:0, srs:{}, recoDay:1, carSet:{scope:0,pause:4,rep:2,dir:0}};
+function loadState(){ try{ const s=JSON.parse(localStorage.getItem(LSK)); if(s) state=Object.assign(state,s);}catch(e){} tickDay(); }
+function saveState(){ try{ localStorage.setItem(LSK, JSON.stringify(state)); }catch(e){} }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function tickDay(){
+  const t=todayStr();
+  if(state.today.d!==t){ state.today={d:t,n:0}; }
+  if(!state.start) state.start=t;
+  const since=Math.floor((new Date(t)-new Date(state.start))/864e5);
+  state.recoDay=Math.min(7, since+1);
+  if(state.lastGoalDay){
+    const gap=Math.floor((new Date(t)-new Date(state.lastGoalDay))/864e5);
+    if(gap>1) state.streak=0;
+  }
+  saveState();
+}
+const BOX_IV=[0, 10*60e3, 2*3600e3, 8*3600e3, 24*3600e3, 72*3600e3];
+function cell(key){ return state.srs[key] || (state.srs[key]={b:0,due:0,n:0,r:0,w:0,ms:3000,last:0}); }
+function grade(key, ok, ms){
+  const c=cell(key); c.n++; c.last=Date.now();
+  if(ok){ c.r++; c.b=Math.min(5,c.b+1); } else { c.w++; c.b=Math.max(0,c.b-2); }
+  if(ms) c.ms=Math.round(c.ms*0.6+ms*0.4);
+  c.due=Date.now()+BOX_IV[c.b];
+  state.today.n++; saveState();
+}
+
+/* ---------- item universe ---------- */
+function allItems(maxDay){
+  const out=[];
+  BANK.forEach((b,i)=>{ if(b.d<=maxDay) out.push({kind:"bank",i,key:"b"+i,day:b.d}); });
+  if(maxDay>=3) TRAPS.forEach((t,i)=> out.push({kind:"trap",i,key:"t"+i,day:3}));
+  MCQS.forEach((m,i)=>{ if(m.d<=maxDay) out.push({kind:"mcq",i,key:"m"+i,day:m.d}); });
+  ATTACH.forEach((a,i)=>{ if(a.d<=maxDay) out.push({kind:"att",i,key:"a"+i,day:a.d}); });
+  for(let vi=0;vi<7;vi++) for(let p=0;p<6;p++){ const d=p<3?1:2; if(d<=maxDay) out.push({kind:"conj",vi,p,key:"c"+vi+"-"+p,day:d}); }
+  return out;
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function buildSession(day, n){
+  const pool=allItems(day), now=Date.now();
+  const due=shuffle(pool.filter(it=>{ const c=state.srs[it.key]; return c && c.n>0 && c.due<=now; }));
+  const fresh=shuffle(pool.filter(it=>!state.srs[it.key]||state.srs[it.key].n===0));
+  fresh.sort((a,b)=>(a.day===day?0:1)-(b.day===day?0:1));
+  const rest=shuffle(pool.filter(it=>state.srs[it.key]&&state.srs[it.key].n>0&&state.srs[it.key].due>now));
+  rest.sort((a,b)=>(state.srs[a.key].last||0)-(state.srs[b.key].last||0));
+  const out=[];
+  const take=(arr,k)=>{ while(k-->0&&arr.length) out.push(arr.shift()); };
+  take(due, Math.min(due.length, Math.round(n*0.6)));
+  take(fresh, n-out.length>0 ? Math.min(fresh.length, n-out.length) : 0);
+  take(rest, n-out.length);
+  take(due, n-out.length); take(fresh, n-out.length);
+  return shuffle(out).slice(0,n);
+}
+
+/* ================================================================
+   AUDIO — device TTS (primed on gesture, watchdog on end) + FX
+   ================================================================ */
+const TTS={ it:null, en:null, rate:0.95, _primed:false, _watch:null, _cb:null,
+ load(){
+   const vs=speechSynthesis.getVoices(); if(!vs.length) return;
+   const score=(v,lang,names)=>{ let s=0; if(v.lang&&v.lang.toLowerCase().startsWith(lang))s+=4; else return -1;
+     const n=v.name.toLowerCase(); names.forEach((nm,ix)=>{ if(n.includes(nm)) s+=3-ix*0.1; });
+     if(/premium|enhanced|siri|neural/i.test(v.name)) s+=2; if(!v.localService) s+=0.5; return s; };
+   const pick=(lang,names)=>vs.map(v=>[score(v,lang,names),v]).filter(x=>x[0]>=0).sort((a,b)=>b[0]-a[0]).map(x=>x[1])[0]||null;
+   this.it=pick("it",["federica","emma","alice","elsa","paola","luca","isabella"]);
+   this.en=pick("en",["samantha","ava","daniel","karen","allison"]);
+ },
+ prime(){ if(this._primed) return; try{ const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); this._primed=true; }catch(e){} },
+ stop(){ clearTimeout(this._watch); this._cb=null; try{ speechSynthesis.cancel(); }catch(e){} },
+ speak(text, opt){
+   opt=opt||{}; this.stop();
+   const done=()=>{ clearTimeout(this._watch); const cb=this._cb; this._cb=null; if(cb) cb(); };
+   this._cb=opt.onDone||null;
+   let u;
+   try{ u=new SpeechSynthesisUtterance(text); }catch(e){ done(); return; }
+   const lang=opt.lang||"it";
+   u.voice=(lang==="en")?this.en:this.it;
+   u.lang=u.voice?u.voice.lang:(lang==="en"?"en-US":"it-IT");
+   u.rate=opt.rate||this.rate;
+   u.onend=done; u.onerror=done;
+   this._watch=setTimeout(done, 900+ text.length*(90/(u.rate)));   // watchdog: onend is unreliable
+   try{ speechSynthesis.speak(u); }catch(e){ done(); }
+ }};
+if(window.speechSynthesis){ TTS.load(); speechSynthesis.onvoiceschanged=()=>TTS.load(); }
+
+let _actx=null;
+function actx(){ if(!_actx){ try{ _actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(_actx&&_actx.state==="suspended") _actx.resume(); return _actx; }
+function tone(freq,dur,type,vol,when){ const c=actx(); if(!c) return; const o=c.createOscillator(),g=c.createGain();
+  o.type=type||"sine"; o.frequency.value=freq; g.gain.value=vol||0.12; o.connect(g); g.connect(c.destination);
+  const t=c.currentTime+(when||0); o.start(t); g.gain.setValueAtTime(vol||0.12,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur); o.stop(t+dur+0.02); }
+function fxOk(combo){ const base=620+Math.min(combo||0,8)*40; tone(base,0.09); tone(base*1.5,0.12,"sine",0.1,0.08); }
+function fxNo(){ tone(160,0.2,"square",0.06); }
+function fxBeep(){ tone(1000,0.12,"sine",0.15); }
+function fxWin(){ [523,659,784,1047].forEach((f,i)=>tone(f,0.18,"sine",0.12,i*0.13)); }
+
+/* ================================================================
+   SPEECH RECOGNITION (it-IT) with graceful fallback
+   ================================================================ */
+const ASR={ Rec:window.SpeechRecognition||window.webkitSpeechRecognition, rec:null, live:false,
+ get supported(){ return !!this.Rec; },
+ start(onResult,onEnd){
+   if(!this.Rec) { onEnd&&onEnd("unsupported"); return; }
+   try{
+     const r=new this.Rec(); this.rec=r; this.live=true;
+     r.lang="it-IT"; r.interimResults=false; r.maxAlternatives=5;
+     r.onresult=(e)=>{ const alts=[]; const res=e.results[0]; for(let i=0;i<res.length;i++) alts.push(res[i].transcript); onResult(alts); };
+     r.onerror=(e)=>{ this.live=false; onEnd&&onEnd(e.error); };
+     r.onend=()=>{ this.live=false; onEnd&&onEnd(null); };
+     r.start();
+   }catch(e){ this.live=false; onEnd&&onEnd("error"); }
+ },
+ stop(){ try{ this.rec&&this.rec.stop(); }catch(e){} this.live=false; }};
+function norm(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/[^a-z0-9\s']/g," ").replace(/'/g," ").replace(/\s+/g," ").trim(); }
+function lev(a,b){ const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  let prev=Array.from({length:n+1},(_,i)=>i);
+  for(let i=1;i<=m;i++){ const cur=[i]; for(let j=1;j<=n;j++){ cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); } prev=cur; }
+  return prev[n]; }
+function saidRight(target, transcripts, alts){
+  const targets=[target].concat(alts||[]).map(norm);
+  return (transcripts||[]).some(tr=>{ const t=norm(tr);
+    return targets.some(tg=> t===tg || t.includes(tg) || lev(t,tg)<=Math.max(1,Math.ceil(tg.length/8))); });
+}
+
+/* ================================================================
+   UI HELPERS
+   ================================================================ */
+const $=id=>document.getElementById(id);
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
+function toast(msg,ms){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),ms||1800); }
+function xpFly(x,y,txt){ const e=document.createElement("div"); e.className="xpfly"; e.textContent=txt; e.style.left=(x-20)+"px"; e.style.top=(y-30)+"px"; document.body.appendChild(e); setTimeout(()=>e.remove(),950); }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+/* ================================================================
+   EXERCISE BUILDING — drill type follows SRS box (recognition → production)
+   ================================================================ */
+function bankSentence(b){ return (state.gender==="f"&&b.itF)?b.itF:b.it; }
+function pronounToken(it){
+  const words=it.split(/\s+/);
+  for(let i=0;i<words.length;i++){ const w=words[i].toLowerCase().replace(/[^a-zà-ù']/g,"");
+    if(["mi","ti","si","ci","vi"].includes(w)) return {ix:i,w:words[i]}; }
+  return null;
+}
+function makeEx(it){
+  const box=(state.srs[it.key]||{b:0}).b;
+  if(it.kind==="trap"){ const t=TRAPS[it.i];
+    return {key:it.key,type:"pron",zero:true,kind:"RIFLESSIVO O NO?",sub:"("+t.s+")",
+      main:"___ "+esc(t.q),ans:t.ans,full:t.full,en:t.en,note:t.note}; }
+  if(it.kind==="mcq"){ const m=MCQS[it.i];
+    const opts=m.opts.map((o,i)=>({t:o,ok:i===m.a}));
+    return {key:it.key,type:"mc",kind:"ESSERE O AVERE?",main:esc(m.pre),opts:shuffle(opts.slice()),full:m.pre.replace("___",m.opts[m.a]),en:m.en,note:m.note}; }
+  if(it.kind==="att"){ const a=ATTACH[it.i];
+    return {key:it.key,type:"pron",attach:true,kind:"ATTACCA IL PRONOME",main:esc(a.pre),ans:a.a,full:a.full,en:a.en,note:a.note}; }
+  if(it.kind==="conj"){ const v=VERBS[it.vi], full=presSentence(it.vi,it.p), form=presForm(it.vi,it.p);
+    if(box<2){
+      const opts=[{t:form,ok:true}]; const used=new Set([it.p]);
+      while(opts.length<4){ const q=Math.floor(Math.random()*6); if(used.has(q))continue; used.add(q); opts.push({t:presForm(it.vi,q),ok:false}); }
+      return {key:it.key,type:"mc",kind:"CONIUGA",sub:"("+SUBJ[it.p]+")",main:v.id+" <span style='color:var(--muted)'>— "+esc(v.en)+"</span>",opts:shuffle(opts),full:full,en:null};
+    }
+    return {key:it.key,type:"type",kind:"CONIUGA",sub:"("+SUBJ[it.p]+")",main:v.id+" <span style='color:var(--muted)'>— "+esc(v.en)+"</span>",ans:form,alts:[],full:full,en:null};
+  }
+  // bank item — ladder by box
+  const b=BANK[it.i], sent=bankSentence(b), pt=pronounToken(sent);
+  const mkPron=()=>{ if(!pt) return null;
+    const words=sent.split(/\s+/); const answ=pt.w.toLowerCase().replace(/[^a-z]/g,"");
+    words[pt.ix]="___"; return {key:it.key,type:"pron",kind:"SCEGLI IL PRONOME",main:esc(words.join(" ")),ans:answ,full:sent,en:b.en,note:b.note}; };
+  const mkMc=()=>{
+    let mk; const vi=VIX[b.v];
+    if(pt){ mk=(pr)=>{ const w=sent.split(/\s+/); const cap=pt.w[0]===pt.w[0].toUpperCase();
+        w[pt.ix]=cap?pr[0].toUpperCase()+pr.slice(1):pr; return w.join(" "); };
+    } else {
+      if(!sent.toLowerCase().includes(VERBS[vi].att)) return null;
+      mk=(pr)=>sent.replace(new RegExp(VERBS[vi].att+"(mi|ti|si|ci|vi)"), VERBS[vi].att+pr); }
+    const answP=pt?pt.w.toLowerCase().replace(/[^a-z]/g,""):P[b.p];
+    const opts=[{t:sent,ok:true}]; const seen=new Set([answP]);
+    for(const pr of shuffle(["mi","ti","si","ci","vi"].slice())){ if(opts.length>=4)break; if(seen.has(pr))continue; seen.add(pr);
+      const s2=mk(pr); if(s2!==sent) opts.push({t:s2,ok:false}); }
+    if(opts.length<3) return null;
+    return {key:it.key,type:"mc",kind:"QUALE SUONA GIUSTA?",main:"",opts:shuffle(opts),full:sent,en:b.en,note:b.note}; };
+  const mkTiles=()=>{ const words=sent.replace(/[.!?]$/,"").split(/\s+/); if(words.length<3||words.length>9) return null;
+    let distract=null;
+    if(pt){ distract=shuffle(["mi","ti","si","ci","vi"].filter(x=>x!==pt.w.toLowerCase()))[0]; }
+    return {key:it.key,type:"tiles",kind:"COSTRUISCI LA FRASE",main:"",words:words,distract:distract,full:sent,en:b.en,note:b.note}; };
+  const mkType=()=>({key:it.key,type:"type",kind:"SCRIVI IN ITALIANO",main:"",ans:sent,alts:b.alt||[],full:sent,en:b.en,note:b.note,fromEn:true});
+  const mkSpeak=()=>({key:it.key,type:"speak",kind:"DILLO AD ALTA VOCE",main:"",ans:sent,alts:b.alt||[],full:sent,en:b.en,note:b.note});
+  const mkListen=()=>{ const others=shuffle(BANK.filter(x=>x!==b&&x.t===b.t).map(x=>x.en)).slice(0,3);
+    return {key:it.key,type:"listen",kind:"ASCOLTA — COSA SIGNIFICA?",main:"",opts:shuffle([{t:b.en,ok:true}].concat(others.map(t=>({t,ok:false})))),full:sent,en:b.en,say:sent}; };
+  let ladder;
+  if(box<=1)      ladder=[mkPron,mkMc,mkListen];
+  else if(box<=3) ladder=[mkTiles,mkPron,mkMc];
+  else            ladder=(ASR.supported&&Math.random()<0.5)?[mkSpeak,mkType,mkTiles]:[mkType,mkTiles,mkSpeak];
+  for(const f of shuffle(ladder.slice())){ const ex=f(); if(ex) return ex; }
+  return mkMc()||mkType();
+}
+/* ================================================================
+   DRILL RUNNER
+   ================================================================ */
+let D=null;
+function goDrill(day, exam){
+  TTS.prime(); actx(); tickDay();
+  day=day||state.recoDay;
+  const items=buildSession(day, exam?40:20);
+  if(!items.length){ toast("Niente da allenare!"); return; }
+  D={items:items, ix:0, day:day, right:0, wrong:0, fast:0, xp:0, combo:0, exam:!!exam, wrongKeys:[]};
+  show("scr-drill"); nextItem();
+}
+function quitDrill(){ TTS.stop(); ASR.stop(); D=null; show("scr-home"); renderHome(); }
+function updCombo(){ const c=$("comboLbl"); if(D.combo>=3){ c.textContent="🔥 x"+D.combo; c.classList.add("hot"); } else { c.textContent=(D.ix+1)+"/"+D.items.length; c.classList.remove("hot"); } }
+function nextItem(){
+  if(!D) return;
+  if(D.ix>=D.items.length){ endDrill(); return; }
+  D.cur=D.items[D.ix]; D.ex=makeEx(D.cur); D.t0=Date.now(); D.answered=false;
+  $("drillBar").style.width=Math.round(D.ix/D.items.length*100)+"%";
+  $("fastFlag").classList.remove("show");
+  $("qcard").classList.remove("correct","wrong");
+  renderEx(D.ex); updCombo();
+}
+function renderEx(ex){
+  $("qKind").textContent=ex.kind;
+  $("qSub").textContent=ex.sub||"";
+  $("qFeed").textContent=""; $("qFeed").className="qfeed";
+  $("qNote").textContent="";
+  $("qAfter").innerHTML="";
+  const M=$("qMain"), E=$("qEn"), B=$("qBody");
+  if(ex.type==="pron"){
+    M.innerHTML=ex.main.replace("___",'<span class="blank">&nbsp;___&nbsp;</span>');
+    E.textContent=ex.en||"";
+    let html='<div class="prongrid">';
+    ["mi","ti","si","ci","vi"].forEach(pr=>{ html+='<button class="pronbtn" data-pr="'+pr+'" onclick="onPron(this)">'+pr+'</button>'; });
+    if(ex.zero) html+='<button class="pronbtn zero" data-pr="0" onclick="onPron(this)">∅ niente</button>';
+    html+='</div>'; B.innerHTML=html;
+  }
+  else if(ex.type==="mc"){
+    M.innerHTML=ex.main||""; E.textContent=(ex.main?ex.en:"")||(ex.main?"":"");
+    if(!ex.main){ M.innerHTML='<span style="color:var(--blue);font-size:20px">'+esc(ex.en)+'</span>'; E.textContent=""; }
+    else E.textContent=ex.en||"";
+    B.innerHTML='<div class="mclist">'+ex.opts.map((o,i)=>'<button class="mcbtn" data-i="'+i+'" onclick="onMc(this,'+i+')">'+esc(o.t)+'</button>').join("")+'</div>';
+  }
+  else if(ex.type==="tiles"){
+    M.innerHTML='<span style="color:var(--blue);font-size:21px">'+esc(ex.en)+'</span>'; E.textContent="tocca le parole in ordine";
+    const pool=ex.words.slice(); if(ex.distract) pool.push(ex.distract);
+    B.innerHTML='<div class="tilewrap"><div class="tileans" id="tileAns"></div><div class="tilepool" id="tilePool">'+
+      shuffle(pool.map((w,i)=>({w,i}))).map(o=>'<button class="tile" data-w="'+esc(o.w)+'" onclick="tileTake(this)">'+esc(o.w)+'</button>').join("")+'</div></div>';
+    D.tileNeed=ex.words.length;
+  }
+  else if(ex.type==="type"){
+    if(ex.fromEn){ M.innerHTML='<span style="color:var(--blue);font-size:21px">'+esc(ex.en)+'</span>'; E.textContent="scrivi in italiano — verbo: "+(ex.hint||""); }
+    else { M.innerHTML=ex.main; E.textContent="scrivi la forma giusta"; }
+    B.innerHTML='<div class="typerow"><input id="typeIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="…">'+
+      '<div class="accrow">'+["à","è","é","ì","ò","ù"].map(a=>'<button class="accbtn" onclick="accIns(\''+a+'\')">'+a+'</button>').join("")+'</div>'+
+      '<button class="checkbtn" onclick="onType()">Controlla</button></div>';
+    const inp=$("typeIn"); inp.addEventListener("keydown",e=>{ if(e.key==="Enter") onType(); });
+    setTimeout(()=>inp.focus(),80);
+  }
+  else if(ex.type==="speak"){
+    M.innerHTML='<span style="color:var(--blue);font-size:21px">'+esc(ex.en)+'</span>';
+    E.textContent=ASR.supported?"premi il microfono e dillo in italiano":"dillo ad alta voce, poi controlla";
+    B.innerHTML=(ASR.supported?'<button class="micbtn" id="micBtn" onclick="onMic()">🎤</button><div class="heard" id="heard"></div>':"")+
+      '<button class="replaybtn" onclick="revealSpeak()">Mostra la risposta 👀</button>';
+    D.micTries=0;
+  }
+  else if(ex.type==="listen"){
+    M.innerHTML='<button class="replaybtn" style="font-size:22px;padding:16px 30px" onclick="TTS.speak(D.ex.say)">🔊 Riascolta</button>';
+    E.textContent="";
+    B.innerHTML='<div class="mclist">'+ex.opts.map((o,i)=>'<button class="mcbtn" data-i="'+i+'" onclick="onMc(this,'+i+')">'+esc(o.t)+'</button>').join("")+'</div>';
+    setTimeout(()=>{ if(D&&D.ex===ex) TTS.speak(ex.say); },350);
+  }
+}
+/* ----- answer handling ----- */
+function settle(ok, revealHtml){
+  if(!D||D.answered) return; D.answered=true;
+  const ms=Date.now()-D.t0, fast=ok&&ms<3000;
+  grade(D.ex.key, ok, ms);
+  const card=$("qcard");
+  if(ok){
+    D.right++; D.combo++; if(fast) D.fast++;
+    const gain=10+(fast?5:0)+Math.min(D.combo*2,20); D.xp+=gain;
+    card.classList.add("correct"); fxOk(D.combo);
+    if(fast) $("fastFlag").classList.add("show");
+    $("qFeed").textContent="✓ "+D.ex.full; $("qFeed").className="qfeed ok";
+    if(D.ex.note) $("qNote").textContent="💡 "+D.ex.note;
+    updCombo();
+    TTS.speak(D.ex.full,{onDone:()=>setTimeout(()=>{ if(D){D.ix++; nextItem();} },250)});
+  } else {
+    D.wrong++; D.combo=0; D.wrongKeys.push(D.ex.key);
+    card.classList.add("wrong"); fxNo();
+    $("qFeed").textContent="✗ Giusto: "+D.ex.full; $("qFeed").className="qfeed no";
+    if(D.ex.note) $("qNote").textContent="💡 "+D.ex.note;
+    if(revealHtml) $("qBody").innerHTML=revealHtml;
+    // requeue same item a few slots later
+    const pos=Math.min(D.items.length, D.ix+3+Math.floor(Math.random()*3));
+    D.items.splice(pos,0,D.cur);
+    TTS.speak(D.ex.full);
+    $("qAfter").innerHTML='<button class="nextbar" onclick="D.ix++;nextItem()">Continua →</button>';
+  }
+}
+function onPron(btn){
+  if(D.answered) return;
+  const pr=btn.dataset.pr, ok=pr===D.ex.ans;
+  document.querySelectorAll(".pronbtn").forEach(b=>{
+    if(b===btn) b.classList.add(ok?"hit":"miss");
+    else if(b.dataset.pr===D.ex.ans) b.classList.add("hit");
+    else b.classList.add("dim");
+  });
+  if(D.ex.main) $("qMain").innerHTML=esc(D.ex.full);
+  settle(ok);
+}
+function onMc(btn,i){
+  if(D.answered) return;
+  const ok=D.ex.opts[i].ok;
+  document.querySelectorAll(".mcbtn").forEach((b,bi)=>{
+    if(b===btn) b.classList.add(ok?"hit":"miss");
+    else if(D.ex.opts[bi]&&D.ex.opts[bi].ok) b.classList.add("hit");
+    else b.classList.add("dim");
+  });
+  settle(ok);
+}
+function tileTake(btn){
+  if(D.answered) return;
+  const ans=$("tileAns");
+  btn.onclick=function(){ tileBack(btn); };
+  ans.appendChild(btn);
+  const chosen=[...ans.children].map(b=>b.dataset.w);
+  if(chosen.length>=D.tileNeed){
+    const target=D.ex.words.join(" ");
+    settle(chosen.join(" ")===target);
+  }
+}
+function tileBack(btn){
+  if(D.answered) return;
+  btn.onclick=function(){ tileTake(btn); };
+  $("tilePool").appendChild(btn);
+}
+function accIns(ch){ const i=$("typeIn"); if(!i) return; const s=i.selectionStart||i.value.length;
+  i.value=i.value.slice(0,s)+ch+i.value.slice(s); i.focus(); i.selectionRange&&0; try{i.setSelectionRange(s+1,s+1);}catch(e){} }
+function onType(){
+  if(D.answered) return;
+  const val=$("typeIn").value; if(!val.trim()) return;
+  const targets=[D.ex.ans].concat(D.ex.alts||[]);
+  const ok=targets.some(t=>norm(t)===norm(val));
+  settle(ok);
+}
+function onMic(){
+  if(D.answered) return;
+  const mb=$("micBtn");
+  if(ASR.live){ ASR.stop(); mb.classList.remove("live"); return; }
+  TTS.stop(); mb.classList.add("live"); $("heard").textContent="ascolto…";
+  ASR.start(alts=>{
+    $("heard").textContent="Ho sentito: «"+(alts[0]||"")+"»";
+    mb.classList.remove("live");
+    if(saidRight(D.ex.ans, alts, D.ex.alts)) settle(true);
+    else {
+      D.micTries=(D.micTries||0)+1;
+      if(D.micTries>=2){ revealSpeak(); }
+      else toast("Quasi! Riprova 🎤");
+    }
+  }, err=>{
+    mb.classList.remove("live");
+    if(err==="unsupported"||err==="not-allowed"||err==="service-not-allowed"){ toast("Microfono non disponibile — usa «Mostra»"); }
+  });
+}
+function revealSpeak(){
+  if(D.answered) return;
+  $("qMain").innerHTML=esc(D.ex.full);
+  TTS.speak(D.ex.full);
+  $("qBody").innerHTML='<div class="qnote" style="margin-top:10px">L\'hai detta giusta?</div><div class="selfgrade">'+
+    '<button class="sgno" onclick="settle(false)">Non proprio</button><button class="sgok" onclick="settle(true)">Sì! ✓</button></div>';
+}
+/* ----- end of session ----- */
+function keyLabel(key){
+  if(key[0]==="b"){ const b=BANK[+key.slice(1)]; const t={pres:"presente",pass:"passato",mod:"modali",imp:"imperativo"}[b.t]; return VERBS[VIX[b.v]].ic+" "+b.v+" · "+t; }
+  if(key[0]==="t") return "🪤 trappola: riflessivo o no";
+  if(key[0]==="m") return "⚖️ essere vs avere";
+  if(key[0]==="a") return "🔗 pronome attaccato";
+  if(key[0]==="c"){ const m=key.slice(1).split("-"); return VERBS[+m[0]].ic+" "+VERBS[+m[0]].id+" · "+SUBJ[+m[1]]; }
+  return key;
+}
+function endDrill(){
+  const tot=D.right+D.wrong, pct=tot?Math.round(D.right/tot*100):0;
+  state.xp+=D.xp;
+  let goalMsg="";
+  if(state.today.n>=30 && state.lastGoalDay!==todayStr()){
+    state.lastGoalDay=todayStr(); state.streak++; goalMsg="🔥 Obiettivo del giorno raggiunto! Striscia: "+state.streak;
+  }
+  saveState();
+  const weak=[...new Set(D.wrongKeys)].slice(0,4);
+  const emo= pct>=90?"🏆": pct>=75?"💪": pct>=50?"📈":"🌱";
+  const title= D.exam ? (pct>=80?"MAESTRO DEI RIFLESSIVI!":"Quasi maestro…") : (pct>=90?"Istinto puro!": pct>=75?"Ottimo lavoro!": "Si cresce!");
+  if(pct>=80&&D.exam) fxWin();
+  $("endCard").innerHTML='<div class="bigemo">'+emo+'</div><h2>'+title+'</h2>'+
+    (D.exam?'<div style="color:var(--muted);font-weight:700">Esame finale — soglia 80%</div>':"")+
+    '<div class="endstats">'+
+    '<div class="endstat"><div class="v">'+pct+'%</div><div class="k">PRECISIONE</div></div>'+
+    '<div class="endstat"><div class="v">⚡'+D.fast+'</div><div class="k">RISPOSTE LAMPO</div></div>'+
+    '<div class="endstat"><div class="v">+'+D.xp+'</div><div class="k">XP</div></div></div>'+
+    (goalMsg?'<div style="color:var(--gold);font-weight:800;margin-top:8px">'+goalMsg+'</div>':"")+
+    (weak.length?'<div class="qnote" style="margin-top:12px">Da rivedere:</div><div class="weakchips">'+weak.map(k=>'<span class="wchip">'+keyLabel(k)+'</span>').join("")+'</div>':"");
+  $("endAgain").onclick=()=>goDrill(D.day, D.exam);
+  const day=D.day; D=null;
+  show("scr-end");
+}
+
+/* ================================================================
+   HOME + DAY INTRO + CHEAT + PROGRESS
+   ================================================================ */
+function dayKeys(d){ return allItems(7).filter(it=>it.day===d).map(it=>it.key); }
+function dayPct(d){
+  const ks=dayKeys(d); if(!ks.length) return 0;
+  let s=0; ks.forEach(k=>{ const c=state.srs[k]; s+= c?c.b:0; });
+  return Math.round(s/(ks.length*5)*100);
+}
+function instinctScore(){
+  const its=allItems(7); let boxes=0, speedHits=0, seen=0;
+  its.forEach(it=>{ const c=state.srs[it.key]; if(c&&c.n>0){ seen++; boxes+=c.b; if(c.ms<3000) speedHits++; } });
+  if(!its.length) return 0;
+  const mast=boxes/(its.length*5), spd=seen?speedHits/seen:0;
+  return Math.round(1000*(0.75*mast+0.25*spd*Math.min(1,seen/its.length)));
+}
+function lvlName(sc){ return sc<150?"Principiante":sc<350?"Apprendista":sc<550?"Allenato":sc<750?"Istintivo":sc<950?"Quasi maestro":"MAESTRO 🏆"; }
+function renderHome(){
+  tickDay();
+  const sc=instinctScore();
+  $("instinctNum").innerHTML=sc+"<small>/1000</small>";
+  $("instinctBar").style.width=(sc/10)+"%";
+  $("lvlName").textContent=lvlName(sc);
+  $("todayGoal").textContent="Oggi: "+state.today.n+"/30 risposte";
+  const chip=$("streakChip"); chip.textContent="🔥 "+state.streak; chip.classList.toggle("hot",state.streak>0);
+  let html="";
+  DAYS.forEach(dy=>{
+    const p=dayPct(dy.n), done=p>=60, reco=dy.n===state.recoDay;
+    html+='<button class="daycard'+(reco?" reco":"")+'" onclick="openDay('+dy.n+')">'+
+      '<div class="ring" style="--p:'+p+'"><span>'+dy.n+'</span></div>'+
+      '<div class="dtxt"><div class="dt1">'+dy.title+'</div><div class="dt2">'+dy.sub+'</div></div>'+
+      (done?'<span class="done">✓</span>':(reco?'<span class="flag">OGGI</span>':""))+'</button>';
+  });
+  $("dayList").innerHTML=html;
+}
+let curDay=1;
+function openDay(n){
+  curDay=n; const dy=DAYS[n-1];
+  $("dayTitle").textContent="Giorno "+n+" — "+dy.title;
+  $("dayMast").textContent=dayPct(n)+"%";
+  let html='<div class="dayhero"><h2>'+dy.title+'</h2><div class="sub">'+dy.desc+'</div></div>';
+  html+='<div class="rulecard"><h3>'+dy.rule.h+'</h3><div class="big">'+dy.rule.big.replace(/class='gr'/g,'style="color:var(--green)"').replace(/class='rd'/g,'style="color:var(--red)"')+'</div><div class="en">'+dy.rule.en+'</div></div>';
+  if(dy.table){
+    const vi=VIX[dy.table.v]; const v=VERBS[vi];
+    html+='<div class="rulecard"><h3>'+v.ic+" "+v.id.toUpperCase()+(dy.table.pass?" — PASSATO":dy.table.mod?" — CON «DOVERE»":"")+'</h3><table class="paratable">';
+    dy.table.rows.forEach(p=>{
+      let form, say;
+      if(dy.table.pass){ const e=(p<2)?(state.gender==="f"?"a":"o"):(p===2?"o / a":(p<5?"i / e":"i / e")); form=P[p]+" "+ESS[p]+" <b>"+v.pp+'<span style="color:var(--green)">'+e+"</span></b>"; say=P[p]+" "+ESS[p]+" "+v.pp+(p<2?(state.gender==="f"?"a":"o"):(p===2?"o":"i")); }
+      else if(dy.table.mod){ const M=["devo","devi","deve","dobbiamo","dovete","devono"]; form=M[p]+" <b>"+v.att+'<span style="color:var(--green)">'+P[p]+"</span></b>"; say=M[p]+" "+v.att+P[p]; }
+      else { form="<b>"+P[p]+" "+v.pres[p]+"</b>"; say=P[p]+" "+v.pres[p]; }
+      html+='<tr><td class="sj">'+SUBJ[p]+'</td><td>'+form+'</td><td class="sp"><button class="spk" onclick=\'TTS.prime();TTS.speak("'+say+'")\'>🔊</button></td></tr>';
+    });
+    html+='</table>'+(dy.table.mod?'<div class="cheatnote">…oppure: <b>mi devo alzare, ti devi alzare, si deve alzare…</b> — identiche!</div>':"")+'</div>';
+  }
+  if(dy.pairs){
+    html+='<div class="rulecard"><h3>ESEMPI</h3>';
+    dy.pairs.forEach(pr=>{ html+='<div class="cheatrow"><span class="it">'+pr[0]+'</span><span class="en">'+pr[1]+'</span><button class="spk" onclick=\'TTS.prime();TTS.speak("'+pr[0].replace(/"/g,"")+'")\'>🔊</button></div>'; });
+    html+='</div>';
+  }
+  if(n===7) html+='<button class="bigcta" onclick="goDrill(7,true)">L\'ESAME — 40 domande 🎓</button>';
+  else html+='<button class="bigcta" onclick="goDrill('+n+')">Allenati — 20 colpi 🏋️</button>';
+  html+='<div class="ctarow"><button class="midcta" onclick="goCarScoped('+n+')">🚗 In auto</button><button class="midcta" onclick="goSpeed()">⚡ Lampo</button></div>';
+  $("dayIntro").innerHTML=html;
+  show("scr-day");
+}
+function renderCheat(){
+  const v=VERBS[VIX["alzarsi"]];
+  let html='<div class="cheatcard"><h3>I 6 PRONOMI — IL RITMO</h3><div class="big" style="font-size:22px;font-weight:900;text-align:center;letter-spacing:1px">mi · ti · si · ci · vi · si</div>'+
+    '<div class="cheatnote" style="text-align:center">io · tu · lui/lei · noi · voi · loro</div></div>';
+  html+='<div class="cheatcard"><h3>PRESENTE — ALZARSI</h3>';
+  for(let p=0;p<6;p++) html+='<div class="cheatrow"><span class="it">'+P[p]+" "+v.pres[p]+'</span><span class="en">'+SUBJ[p]+'</span><button class="spk" onclick=\'TTS.prime();TTS.speak("'+P[p]+" "+v.pres[p]+'")\'>🔊</button></div>';
+  html+='</div>';
+  html+='<div class="cheatcard"><h3>RIFLESSIVO O NO?</h3><div class="cheatnote"><b>A te stesso → pronome.</b> Mi lavo. Mi sveglio alle 7.<br><b>A qualcun altro / qualcosa → niente.</b> Lavo la macchina. Sveglio mio figlio.</div></div>';
+  html+='<div class="cheatcard"><h3>PASSATO — SEMPRE ESSERE + ACCORDO</h3>'+
+    '<div class="cheatrow"><span class="it">mi sono alzat<b style="color:var(--green)">o/a</b></span><span class="en">I got up</span><button class="spk" onclick=\'TTS.prime();TTS.speak("mi sono alzato")\'>🔊</button></div>'+
+    '<div class="cheatrow"><span class="it">si è alzat<b style="color:var(--green)">o/a</b></span><span class="en">he/she got up</span><button class="spk" onclick=\'TTS.prime();TTS.speak("si è alzata")\'>🔊</button></div>'+
+    '<div class="cheatrow"><span class="it">ci siamo alzat<b style="color:var(--green)">i/e</b></span><span class="en">we got up</span><button class="spk" onclick=\'TTS.prime();TTS.speak("ci siamo alzati")\'>🔊</button></div>'+
+    '<div class="cheatnote">Mai «avere»! ✗ ho alzato → ✓ <b>mi sono alzato</b></div></div>';
+  html+='<div class="cheatcard"><h3>CON I MODALI — 2 POSTI</h3><div class="cheatnote"><b>Devo alzarmi</b> = <b>Mi devo alzare</b> — tutte e due perfette.<br>Il pronome segue SEMPRE il soggetto: dobbiamo alzar<b style="color:var(--green)">ci</b>, vogliono alzar<b style="color:var(--green)">si</b>.</div></div>';
+  html+='<div class="cheatcard"><h3>IMPERATIVO — ATTACCATO DOPO</h3>'+
+    '<div class="cheatrow"><span class="it">Alza<b style="color:var(--green)">ti</b>!</span><span class="en">Get up!</span><button class="spk" onclick=\'TTS.prime();TTS.speak("Alzati!")\'>🔊</button></div>'+
+    '<div class="cheatrow"><span class="it">Alziamo<b style="color:var(--green)">ci</b>!</span><span class="en">Let\'s get up!</span><button class="spk" onclick=\'TTS.prime();TTS.speak("Alziamoci!")\'>🔊</button></div>'+
+    '<div class="cheatrow"><span class="it">Alzate<b style="color:var(--green)">vi</b>!</span><span class="en">Get up, all of you!</span><button class="spk" onclick=\'TTS.prime();TTS.speak("Alzatevi!")\'>🔊</button></div>'+
+    '<div class="cheatnote">Negativo (tu): <b>Non alzarti</b> = <b>Non ti alzare</b></div></div>';
+  html+='<div class="cheatcard"><h3>I 7 VERBI</h3>';
+  VERBS.forEach(vb=>{ html+='<div class="cheatrow"><span class="it">'+vb.ic+" "+vb.id+'</span><span class="en">'+vb.en+'</span><button class="spk" onclick=\'TTS.prime();TTS.speak("'+vb.id+'")\'>🔊</button></div>'; });
+  html+='</div>';
+  $("cheatBody").innerHTML=html;
+}
+function renderProgress(){
+  const groups=[["Presente",["pres"]],["Passato",["pass"]],["Modali",["mod"]],["Imperativo",["imp"]]];
+  let html='<table class="heat"><tr><th></th>'+groups.map(g=>'<th>'+g[0]+'</th>').join("")+'</tr>';
+  VERBS.forEach((v,vi)=>{
+    html+='<tr><td class="vname">'+v.ic+" "+v.id+'</td>';
+    groups.forEach(g=>{
+      const keys=[];
+      BANK.forEach((b,i)=>{ if(b.v===v.id&&g[1].includes(b.t)) keys.push("b"+i); });
+      if(g[1].includes("pres")) for(let p=0;p<6;p++) keys.push("c"+vi+"-"+p);
+      let s=0,n=0; keys.forEach(k=>{ const c=state.srs[k]; if(c&&c.n>0){s+=c.b;n++;} });
+      const pct=keys.length?Math.round((n? s/(keys.length*5):0)*100):0;
+      const a=keys.length? (s/(keys.length*5)) : 0;
+      html+='<td class="cell" style="background:rgba(63,185,80,'+(0.06+a*0.85)+')">'+(a>0.35?pct+"%":"")+'</td>';
+    });
+    html+='</tr>';
+  });
+  html+='</table>';
+  let tot=0,r=0,w=0; Object.values(state.srs).forEach(c=>{ tot+=c.n; r+=c.r; w+=c.w; });
+  const trapKeys=TRAPS.map((t,i)=>"t"+i); let tr=0,tn=0; trapKeys.forEach(k=>{ const c=state.srs[k]; if(c){tr+=c.r; tn+=c.n;} });
+  html+='<div class="statgrid">'+
+   '<div class="statbox"><div class="v">'+tot+'</div><div class="k">RISPOSTE TOTALI</div></div>'+
+   '<div class="statbox"><div class="v">'+(tot?Math.round(r/tot*100):0)+'%</div><div class="k">PRECISIONE</div></div>'+
+   '<div class="statbox"><div class="v">🔥 '+state.streak+'</div><div class="k">STRISCIA GIORNI</div></div>'+
+   '<div class="statbox"><div class="v">🪤 '+(tn?Math.round(tr/tn*100):0)+'%</div><div class="k">TRAPPOLE EVITATE</div></div>'+
+   '<div class="statbox"><div class="v">'+state.xp+'</div><div class="k">XP TOTALI</div></div>'+
+   '<div class="statbox"><div class="v">⚡ '+state.bestSpeed+'</div><div class="k">RECORD LAMPO</div></div></div>';
+  $("progBody").innerHTML=html;
+}
+function resetAll(){ if(confirm("Azzerare TUTTI i progressi?")){ localStorage.removeItem(LSK); location.reload(); } }
+/* ================================================================
+   CAR MODE — hands-free: EN cue → pause → IT answer (or IT → EN)
+   ================================================================ */
+let CAR={on:false,list:[],ix:0,t0:0,timers:[],lock:null,clock:null,day:1};
+function carItems(){
+  const set=state.carSet; let maxD, onlyD=null;
+  if(set.scope===0){ onlyD=CAR.day; maxD=CAR.day; }
+  else if(set.scope===1){ maxD=CAR.day; }
+  else maxD=7;
+  const out=[];
+  BANK.forEach(b=>{ if(b.d<=maxD&&(onlyD===null||b.d===onlyD)) out.push({it:bankSentence(b),en:b.en}); });
+  if(maxD>=3&&(onlyD===null||onlyD===3)) TRAPS.forEach(t=>out.push({it:t.full,en:t.en}));
+  ATTACH.forEach(a=>{ if(a.d<=maxD&&(onlyD===null||a.d===onlyD)) out.push({it:a.full,en:a.en}); });
+  if(onlyD===1||onlyD===2||maxD<3){ for(let vi=0;vi<7;vi++) for(let p=0;p<6;p++){ const d=p<3?1:2; if(d<=maxD&&(onlyD===null||d===onlyD)) out.push({it:presSentence(vi,p)+".",en:SUBJ_EN[p]+" "+(p===2?VERBS[vi].enV[1]:VERBS[vi].enV[0])+(VERBS[vi].id==="chiamarsi"?" "+CHIAMA_TAIL[p].replace(/[?,]/g,""):(VERBS[vi].tailEn?" "+VERBS[vi].tailEn:""))+"."}); } }
+  return shuffle(out);
+}
+function goCar(){ goCarScoped(state.recoDay); }
+function goCarScoped(day){
+  TTS.prime(); actx(); CAR.day=day;
+  renderCarSets(); show("scr-car");
+  $("carPhase").textContent="PRONTO"; $("carText").textContent="Premi play e guida.";
+  $("carSub").textContent=state.carSet.dir===0?"Ascolti l'inglese → dici la frase in italiano → senti la risposta.":"Ascolti l'italiano → pensa al significato → senti l'inglese.";
+}
+function renderCarSets(){
+  const s=state.carSet;
+  const seg=(id,vals,cur,fmt)=>{ $(id).innerHTML=vals.map((v,i)=>'<button class="seg'+(i===cur?" on":"")+'" onclick="carSet(\''+id+'\','+i+')">'+fmt(v,i)+'</button>').join(""); };
+  seg("carScopeRow",["Oggi","Fin qui","Tutto"],s.scope,v=>v);
+  seg("carPauseRow",[2,3,4,6],[2,3,4,6].indexOf(s.pause),v=>v+"s");
+  seg("carRepRow",[1,2],s.rep-1,v=>"×"+v);
+  seg("carDirRow",["EN→IT","IT→EN"],s.dir,v=>v);
+  $("carScopeLbl").textContent=["Giorno "+CAR.day,"Giorni 1–"+CAR.day,"Tutto"][s.scope];
+}
+function carSet(id,i){
+  const s=state.carSet;
+  if(id==="carScopeRow")s.scope=i; if(id==="carPauseRow")s.pause=[2,3,4,6][i];
+  if(id==="carRepRow")s.rep=i+1; if(id==="carDirRow")s.dir=i;
+  saveState(); renderCarSets();
+  if(CAR.list.length){ CAR.list=carItems(); CAR.ix=0; }
+}
+function carClearTimers(){ CAR.timers.forEach(clearTimeout); CAR.timers=[]; }
+function carT(fn,ms){ CAR.timers.push(setTimeout(fn,ms)); }
+async function carLock(){ try{ if("wakeLock" in navigator) CAR.lock=await navigator.wakeLock.request("screen"); }catch(e){} }
+function toggleCar(){
+  if(CAR.on){ pauseCar(); return; }
+  TTS.prime(); actx();
+  CAR.on=true; CAR.t0=CAR.t0||Date.now(); $("carPlay").textContent="⏸";
+  if(!CAR.list.length){ CAR.list=carItems(); CAR.ix=0; }
+  carLock(); carStep();
+  if(!CAR.clock){ CAR.clock=setInterval(()=>{ if(!CAR.on)return; const s=Math.floor((Date.now()-CAR.t0)/1000); $("carElapsed").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); },1000); }
+}
+function pauseCar(){ CAR.on=false; $("carPlay").textContent="▶"; carClearTimers(); TTS.stop(); $("carPhase").textContent="IN PAUSA"; if(CAR.lock){ try{CAR.lock.release();}catch(e){} CAR.lock=null; } }
+function stopCar(){ pauseCar(); clearInterval(CAR.clock); CAR.clock=null; CAR.list=[]; CAR.ix=0; CAR.t0=0; }
+function carPrev(){ if(!CAR.list.length)return; CAR.ix=(CAR.ix-1+CAR.list.length)%CAR.list.length; if(CAR.on){ carClearTimers(); TTS.stop(); carStep(); } }
+function carNext(user){ if(!CAR.list.length&&user){ toggleCar(); return; } if(!CAR.list.length)return;
+  CAR.ix++; if(CAR.ix>=CAR.list.length){ CAR.list=shuffle(CAR.list); CAR.ix=0; }
+  if(CAR.on||user){ carClearTimers(); TTS.stop(); if(!CAR.on&&user){CAR.on=true;$("carPlay").textContent="⏸"; carLock();} carStep(); } }
+function carStep(){
+  if(!CAR.on) return;
+  const item=CAR.list[CAR.ix], s=state.carSet;
+  $("carCount").textContent=(CAR.ix+1)+"/"+CAR.list.length;
+  const cue = s.dir===0? item.en : item.it;
+  const ansTx= s.dir===0? item.it : item.en;
+  $("carPhase").textContent="ASCOLTA"; $("carPhase").className="carphase";
+  $("carText").textContent=cue; $("carText").className="cartext"+(s.dir===0?" en":"");
+  $("carSub").textContent="";
+  TTS.speak(cue,{lang:s.dir===0?"en":"it",onDone:()=>{ if(!CAR.on)return;
+    $("carPhase").textContent=s.dir===0?"TOCCA A TE — DILLO!":"COSA SIGNIFICA?"; $("carPhase").className="carphase think";
+    fxBeep();
+    carT(()=>{ if(!CAR.on)return;
+      $("carPhase").textContent="RISPOSTA"; $("carPhase").className="carphase";
+      $("carText").textContent=ansTx; $("carText").className="cartext"+(s.dir===0?"":" en");
+      $("carSub").textContent=cue;
+      const sayAnswer=(k)=>{ TTS.speak(ansTx,{lang:s.dir===0?"it":"en",rate:k>0?0.82:0.95,onDone:()=>{ if(!CAR.on)return;
+        if(k+1<s.rep){ carT(()=>sayAnswer(k+1),450); }
+        else if(s.dir===1){
+          carT(()=>{ if(!CAR.on)return; TTS.speak(item.it,{lang:"it",onDone:()=>carT(()=>carNext(false),700)}); },350);
+        }
+        else carT(()=>carNext(false),800);
+      }});};
+      sayAnswer(0);
+    }, s.pause*1000);
+  }});
+}
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&CAR.on&&!CAR.lock) carLock(); });
+
+/* ================================================================
+   SPEED ROUND — 60 seconds, tap only
+   ================================================================ */
+let SP={on:false,score:0,combo:0,left:60,timer:null,lastKey:null};
+function goSpeed(){ TTS.prime(); actx(); show("scr-speed");
+  $("sTime").textContent="60"; $("sTime").className="stime"; $("sScore").textContent="0";
+  $("sMain").textContent="Rispondi più in fretta che puoi!"; $("sEn").textContent="Record: "+state.bestSpeed;
+  $("sBody").innerHTML='<button class="bigcta" onclick="startSpeed()">VIA ⚡</button>';
+}
+function startSpeed(){
+  SP={on:true,score:0,combo:0,left:60,timer:null,lastKey:null};
+  SP.timer=setInterval(()=>{ SP.left--; $("sTime").textContent=SP.left;
+    if(SP.left<=10) $("sTime").className="stime low";
+    if(SP.left<=0) endSpeed(); },1000);
+  speedItem();
+}
+function quitSpeed(){ if(SP.timer)clearInterval(SP.timer); SP.on=false; show("scr-home"); renderHome(); }
+function speedItem(){
+  if(!SP.on) return;
+  const day=state.recoDay;
+  const kinds=[];
+  BANK.forEach((b,i)=>{ if(b.d<=day&&pronounToken(bankSentence(b))) kinds.push({k:"pron",i}); });
+  if(day>=3) TRAPS.forEach((t,i)=>kinds.push({k:"trap",i}));
+  ATTACH.forEach((a,i)=>{ if(a.d<=day) kinds.push({k:"att",i}); });
+  for(let vi=0;vi<7;vi++) for(let p=0;p<6;p++){ if((p<3?1:2)<=day) kinds.push({k:"conj",vi,p}); }
+  let pick; let guard=0;
+  do{ pick=kinds[Math.floor(Math.random()*kinds.length)]; }while(JSON.stringify(pick)===SP.lastKey&&guard++<5);
+  SP.lastKey=JSON.stringify(pick);
+  const M=$("sMain"), E=$("sEn"), B=$("sBody");
+  const pronBtns=(zero)=>{ let h='<div class="prongrid">';
+    ["mi","ti","si","ci","vi"].forEach(pr=>h+='<button class="pronbtn" data-pr="'+pr+'" onclick="onSpeedPron(this)">'+pr+'</button>');
+    if(zero) h+='<button class="pronbtn zero" data-pr="0" onclick="onSpeedPron(this)">∅</button>';
+    return h+'</div>'; };
+  if(pick.k==="pron"){ const b=BANK[pick.i], sent=bankSentence(b), pt=pronounToken(sent);
+    const w=sent.split(/\s+/); SP.ans=pt.w.toLowerCase().replace(/[^a-z]/g,""); SP.srsKey="b"+pick.i; SP.full=sent;
+    w[pt.ix]="___"; M.textContent=w.join(" "); E.textContent=b.en; B.innerHTML=pronBtns(false); }
+  else if(pick.k==="trap"){ const t=TRAPS[pick.i];
+    SP.ans=t.ans; SP.srsKey="t"+pick.i; SP.full=t.full;
+    M.textContent="("+t.s+") ___ "+t.q; E.textContent=t.en; B.innerHTML=pronBtns(true); }
+  else if(pick.k==="att"){ const a=ATTACH[pick.i];
+    SP.ans=a.a; SP.srsKey="a"+pick.i; SP.full=a.full;
+    M.textContent=a.pre; E.textContent=a.en; B.innerHTML=pronBtns(false); }
+  else { const form=presForm(pick.vi,pick.p);
+    SP.srsKey="c"+pick.vi+"-"+pick.p; SP.full=form; SP.mc=[{t:form,ok:true}];
+    const used=new Set([pick.p]);
+    while(SP.mc.length<4){ const q=Math.floor(Math.random()*6); if(used.has(q))continue; used.add(q); SP.mc.push({t:presForm(pick.vi,q),ok:false}); }
+    shuffle(SP.mc);
+    M.innerHTML=VERBS[pick.vi].id+' <span style="color:var(--muted)">('+SUBJ[pick.p]+')</span>'; E.textContent=VERBS[pick.vi].en;
+    B.innerHTML='<div class="mclist">'+SP.mc.map((o,i)=>'<button class="mcbtn" onclick="onSpeedMc('+i+',this)">'+esc(o.t)+'</button>').join("")+'</div>';
+    SP.t0=Date.now(); return; }
+  SP.t0=Date.now();
+}
+function speedGrade(ok){
+  grade(SP.srsKey, ok, Date.now()-SP.t0);
+  if(ok){ SP.combo++; SP.score+=10+Math.min(SP.combo*2,20); fxOk(SP.combo); }
+  else { SP.combo=0; fxNo(); }
+  $("sScore").textContent=SP.score;
+  setTimeout(()=>{ if(SP.on) speedItem(); }, ok?220:650);
+}
+function onSpeedPron(btn){ if(!SP.on)return; const ok=btn.dataset.pr===SP.ans;
+  btn.classList.add(ok?"hit":"miss");
+  if(!ok){ document.querySelectorAll("#sBody .pronbtn").forEach(b=>{ if(b.dataset.pr===SP.ans) b.classList.add("hit"); }); $("sMain").textContent=SP.full; }
+  speedGrade(ok); }
+function onSpeedMc(i,btn){ if(!SP.on)return; const ok=SP.mc[i].ok;
+  btn.classList.add(ok?"hit":"miss");
+  if(!ok){ document.querySelectorAll("#sBody .mcbtn").forEach((b,bi)=>{ if(SP.mc[bi].ok) b.classList.add("hit"); }); }
+  speedGrade(ok); }
+function endSpeed(){
+  clearInterval(SP.timer); SP.on=false;
+  const rec=SP.score>state.bestSpeed;
+  if(rec){ state.bestSpeed=SP.score; saveState(); fxWin(); }
+  $("sMain").innerHTML=(rec?"🏆 NUOVO RECORD!":"Tempo scaduto!");
+  $("sEn").textContent="Punteggio: "+SP.score+" · Record: "+state.bestSpeed;
+  $("sBody").innerHTML='<button class="bigcta" onclick="startSpeed()">Ancora ⚡</button><button class="nextbar" onclick="quitSpeed()">Basta così</button>';
+}
+
+/* ================================================================
+   ONBOARDING + BOOT
+   ================================================================ */
+function setGender(g){ state.gender=g; $("gM").classList.toggle("on",g==="m"); $("gF").classList.toggle("on",g==="f"); }
+function closeOb(){ if(!state.gender) state.gender="m"; saveState(); $("obModal").classList.remove("on"); TTS.prime(); actx(); renderHome();
+  TTS.speak("Ciao! Si comincia."); }
+loadState();
+renderCheat();
+renderHome();
+show("scr-home");
+if(!state.gender){ $("obModal").classList.add("on"); $("gM").classList.add("on"); }
+</script>
+</body>
+</html>
